@@ -1,0 +1,21 @@
+{
+  "rules": {
+    "admins": {
+      ".read": false,
+      ".write": false
+    },
+    "storeData": {
+      ".read": true,
+      ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
+    },
+    "orders": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      "$orderId": {
+        ".write": "(!data.exists() && newData.exists()) || (auth != null && root.child('admins').child(auth.uid).val() === true)",
+        "latestNotification": {
+          ".read": true
+        }
+      }
+    }
+  }
+}
