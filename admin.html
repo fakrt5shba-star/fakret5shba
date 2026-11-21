@@ -19,7 +19,7 @@
         // دخول مؤقت لحد ما مشروع Firebase الجديد يتعمل: الكود فيه بصمة مشفرة (PBKDF2) للاسم والباسورد مش الباسورد نفسه.
         // البصمة بتتعمل بـ tools/set-admin-password.ps1. ده قفل للواجهة بس — الحماية الحقيقية هي قواعد Firebase.
         // احذف TEMP_ADMIN_HASH بعد ما Firebase Auth يشتغل.
-        var TEMP_ADMIN_HASH = '';
+        var TEMP_ADMIN_HASH = '29e183413baffdf03058bf9d0434bc06bead995c03298367713b5f33c38c9465';
         var TEMP_ADMIN_SALT = 'fekra-admin-v1';
         async function tempAdminHash(username, pass) {
             var enc = new TextEncoder();
