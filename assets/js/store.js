@@ -255,7 +255,7 @@
             header.className = 'site-header';
             header.innerHTML = `
             <div class="container header-inner">
-                <a class="brand" href="/" aria-label="فكرة خشبة - الرئيسية"><span class="brand-mark" aria-hidden="true">ف</span><span>فكرة خشبة</span></a>
+                <a class="brand" href="/" aria-label="فكرة خشبة - الرئيسية"><img class="brand-logo" src="/assets/img/brand/logo-96.png" width="40" height="40" alt="" aria-hidden="true"><span>فكرة خشبة</span></a>
                 <nav class="main-nav" aria-label="القائمة الرئيسية">
                     ${NAV.map(n => `<a href="${n.href}" class="${n.cls || ''}" ${n.key === active ? 'aria-current="page"' : ''}>${n.label}</a>`).join('')}
                 </nav>
@@ -287,7 +287,7 @@
             <div class="container">
                 <div class="footer-grid">
                     <div class="footer-brand">
-                        <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">ف</span><span>فكرة خشبة</span></a>
+                        <a class="brand" href="/"><img class="brand-logo" src="/assets/img/brand/logo-96.png" width="40" height="40" alt="" aria-hidden="true"><span>فكرة خشبة</span></a>
                         <p style="margin-top:12px; max-width:340px;">لوحات نيون وأكريليك ولايت بوكس وديكورات خشب، تصميم وتنفيذ حسب الطلب.</p>
                         <div class="socials">
                             <a href="${CFG.socials.facebook}" target="_blank" rel="noopener" aria-label="فيسبوك"><i class="fa-brands fa-facebook-f"></i></a>

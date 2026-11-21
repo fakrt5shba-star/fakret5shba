@@ -70,6 +70,7 @@ main { flex: 1; }
 .site-header { position: sticky; top: 0; z-index: 900; background: rgba(11, 11, 13, 0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(212, 175, 55, 0.25); color: var(--text); }
 .header-inner { height: var(--header-h); display: flex; align-items: center; gap: var(--s4); }
 .brand { display: flex; align-items: center; gap: var(--s2); font-weight: 800; font-size: 1.25rem; color: var(--gold); flex-shrink: 0; }
+.brand-logo { width: 40px; height: 40px; border-radius: 50%; display: block; flex: none; object-fit: cover; }
 .brand-mark { width: 36px; height: 36px; border-radius: 10px; background: var(--gold); color: #0B0B0D; display: grid; place-items: center; font-size: 1.2rem; font-weight: 800; }
 .main-nav { display: flex; align-items: center; gap: var(--s1); margin-inline-start: var(--s4); }
 .main-nav a { padding: var(--s2) var(--s3); border-radius: 999px; font-weight: 600; font-size: 0.95rem; color: var(--muted); transition: color .2s, background-color .2s; }
