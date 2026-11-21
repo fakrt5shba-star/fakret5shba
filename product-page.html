@@ -111,6 +111,7 @@
                     </div>
                 </div>`;
                 document.body.classList.add('has-sticky-buy');
+                const canon = document.createElement('link'); canon.rel = 'canonical'; canon.href = shareUrl; document.head.appendChild(canon);
 
                 box.querySelectorAll('.pd-thumbs button').forEach(b => b.addEventListener('click', () => {
                     const m = media[+b.dataset.i];
