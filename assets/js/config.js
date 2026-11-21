@@ -3,11 +3,15 @@
 (function (root) {
     const CFG = {
         siteUrl: 'https://fakret5shba.com',
+        // مشروع fekra-store على حساب صاحب المتجر (قاعدة البيانات في بلجيكا europe-west1)
         firebase: {
-            apiKey: "AIzaSyAvVMu2xPpZGY2acNzn2A9QfxnQy_J3IZI",
-            authDomain: "open-close-11f8d.firebaseapp.com",
-            databaseURL: "https://open-close-11f8d-default-rtdb.firebaseio.com",
-            projectId: "open-close-11f8d"
+            apiKey: "AIzaSyC8dRXkbwqXO1rTZpnv9aNccGlfc9QQ2QM",
+            authDomain: "fekra-store-1d289.firebaseapp.com",
+            databaseURL: "https://fekra-store-1d289-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "fekra-store-1d289",
+            storageBucket: "fekra-store-1d289.firebasestorage.app",
+            messagingSenderId: "917571201181",
+            appId: "1:917571201181:web:846a8c483c142b0473cc74"
         },
         // رقم المبيعات المستخدم في زر "اعمل تصميمك" وأسعار "تواصل للسعر" في قاعدة البيانات
         whatsappSales: '201094324500',

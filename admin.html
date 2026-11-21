@@ -10,38 +10,40 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="/assets/js/config.js"></script>
     <meta name="robots" content="noindex, nofollow">
 
     <script>
-        // الدخول بحساب Firebase Authentication بدل باسورد مكتوب في الكود
+        // الدخول بحساب Firebase Authentication (مشروع fekra-store على حساب صاحب المتجر)
         // اسم المستخدم بيتحول لإيميل داخلي: mostafa2122 => mostafa2122@fakret5shba.com
-        //
-        // دخول مؤقت لحد ما مشروع Firebase الجديد يتعمل: الكود فيه بصمة مشفرة (PBKDF2) للاسم والباسورد مش الباسورد نفسه.
-        // البصمة بتتعمل بـ tools/set-admin-password.ps1. ده قفل للواجهة بس — الحماية الحقيقية هي قواعد Firebase.
-        // احذف TEMP_ADMIN_HASH بعد ما Firebase Auth يشتغل.
-        var TEMP_ADMIN_HASH = '29e183413baffdf03058bf9d0434bc06bead995c03298367713b5f33c38c9465';
-        var TEMP_ADMIN_SALT = 'fekra-admin-v1';
-        async function tempAdminHash(username, pass) {
-            var enc = new TextEncoder();
-            var key = await crypto.subtle.importKey('raw', enc.encode(username + ':' + pass), 'PBKDF2', false, ['deriveBits']);
-            var bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: enc.encode(TEMP_ADMIN_SALT), iterations: 150000, hash: 'SHA-256' }, key, 256);
-            return Array.from(new Uint8Array(bits)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
-        }
+        // الباسورد بيتغير من Firebase Console > Authentication > Users.
+        // الصلاحية الحقيقية في قواعد قاعدة البيانات: لازم الـ UID يكون موجود في admins/<uid> = true
         async function checkPassword() {
             var username = document.getElementById('adminEmailInput').value.trim().toLowerCase();
             var pass = document.getElementById('adminPassInput').value;
             if(!username || !pass) { alert("اكتب اسم المستخدم وكلمة المرور."); return; }
             var email = username.includes('@') ? username : username + '@fakret5shba.com';
-            try { await firebase.auth().signInWithEmailAndPassword(email, pass); return; } catch (e) { }
-            if (TEMP_ADMIN_HASH && await tempAdminHash(username, pass) === TEMP_ADMIN_HASH) {
-                try { localStorage.setItem('fk_admin_temp', TEMP_ADMIN_HASH); } catch (e) { }
-                unlockAdmin();
-                return;
+            try {
+                await firebase.auth().signInWithEmailAndPassword(email, pass);
+            } catch (e) {
+                var code = (e && e.code) || '';
+                if (code === 'auth/too-many-requests') alert("محاولات كتير غلط. استنى شوية وجرب تاني.");
+                else if (code === 'auth/network-request-failed') alert("مفيش اتصال بالإنترنت. اتأكد من النت وجرب تاني.");
+                else alert("اسم المستخدم أو كلمة المرور خاطئة! يرجى التأكد والمحاولة مرة أخرى.");
             }
-            alert("اسم المستخدم أو كلمة المرور خاطئة! يرجى التأكد والمحاولة مرة أخرى.");
         }
-        function hasTempSession() { try { return !!TEMP_ADMIN_HASH && localStorage.getItem('fk_admin_temp') === TEMP_ADMIN_HASH; } catch (e) { return false; } }
-        function logoutAdmin() { try { localStorage.removeItem('fk_admin_temp'); } catch (e) { } firebase.auth().signOut(); location.reload(); }
+        async function loginWithGoogle() {
+            try {
+                await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+            } catch (e) {
+                var code = (e && e.code) || '';
+                if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return;
+                if (code === 'auth/popup-blocked') { firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider()); return; }
+                alert("تعذر الدخول بجوجل. جرب تاني.");
+            }
+        }
+        function hasTempSession() { return false; }
+        function logoutAdmin() { try { localStorage.removeItem('fk_admin_temp'); } catch (e) { } firebase.auth().signOut().then(function () { location.reload(); }); }
         document.addEventListener('DOMContentLoaded', function() {
             var passInput = document.getElementById('adminPassInput');
             if(passInput) {
@@ -213,7 +215,8 @@
     <div id="loginOverlay">
         <div class="login-box">
             <h2 style="color: var(--gold); margin-bottom: 10px;">تسجيل الدخول للإدارة</h2>
-            <p style="color: #ccc; font-size: 14px;">يرجى إدخال اسم المستخدم وكلمة المرور للمتابعة</p>
+            <button type="button" id="googleLoginBtn" onclick="loginWithGoogle()" style="display:flex; align-items:center; justify-content:center; gap:10px; width:100%; margin:10px 0 6px;"><i class="fa-brands fa-google"></i> الدخول بحساب جوجل</button>
+            <p style="color: #888; font-size: 13px; margin: 14px 0 4px;">أو باسم المستخدم وكلمة المرور</p>
             <input type="text" id="adminEmailInput" placeholder="اسم المستخدم" autocomplete="username" autocapitalize="off" style="margin-bottom: 0;">
             <input type="password" id="adminPassInput" placeholder="كلمة المرور">
             <button onclick="checkPassword()">دخول</button>
@@ -448,7 +451,7 @@
     </div>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyAvVMu2xPpZGY2acNzn2A9QfxnQy_J3IZI", authDomain: "open-close-11f8d.firebaseapp.com", databaseURL: "https://open-close-11f8d-default-rtdb.firebaseio.com", projectId: "open-close-11f8d" };
+        const firebaseConfig = window.FK_CONFIG.firebase;
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const database = firebase.database();
 

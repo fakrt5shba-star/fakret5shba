@@ -8,7 +8,7 @@
 |---|---|
 | الواجهة | HTML + CSS + JavaScript عادي بدون إطار عمل ولا Build step |
 | الاستضافة | Vercel (نشر تلقائي من GitHub `fakrt5shba-star/fakret5shba` فرع `main`) مع `cleanUrls` |
-| البيانات | Firebase Realtime Database (مشروع `open-close-11f8d`) عبر Firebase JS SDK v8 |
+| البيانات | Firebase Realtime Database (مشروع `open-close-11f8d` وقت المراجعة — اتنقل لمشروع `fekra-store-1d289` على حساب صاحب المتجر يوم 2026-11-21) عبر Firebase JS SDK v8 |
 | الإدارة | `admin.html` يقرأ ويكتب `storeData` و `orders` |
 
 ### هيكل البيانات
