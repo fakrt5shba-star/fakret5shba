@@ -1,3 +1,20 @@
 {
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "query", "key": "product", "value": "(?<pid>[A-Za-z0-9_-]+)" }],
+      "destination": "/product?id=:pid",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    { "source": "/meta-catalog.csv", "destination": "/api/meta-catalog" }
+  ],
+  "headers": [
+    {
+      "source": "/media/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000, immutable" }]
+    }
+  ]
 }

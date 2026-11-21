@@ -15,16 +15,33 @@
     <script>
         // الدخول بحساب Firebase Authentication بدل باسورد مكتوب في الكود
         // اسم المستخدم بيتحول لإيميل داخلي: mostafa2122 => mostafa2122@fakret5shba.com
-        function checkPassword() {
+        //
+        // دخول مؤقت لحد ما مشروع Firebase الجديد يتعمل: الكود فيه بصمة مشفرة (PBKDF2) للاسم والباسورد مش الباسورد نفسه.
+        // البصمة بتتعمل بـ tools/set-admin-password.ps1. ده قفل للواجهة بس — الحماية الحقيقية هي قواعد Firebase.
+        // احذف TEMP_ADMIN_HASH بعد ما Firebase Auth يشتغل.
+        var TEMP_ADMIN_HASH = '';
+        var TEMP_ADMIN_SALT = 'fekra-admin-v1';
+        async function tempAdminHash(username, pass) {
+            var enc = new TextEncoder();
+            var key = await crypto.subtle.importKey('raw', enc.encode(username + ':' + pass), 'PBKDF2', false, ['deriveBits']);
+            var bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: enc.encode(TEMP_ADMIN_SALT), iterations: 150000, hash: 'SHA-256' }, key, 256);
+            return Array.from(new Uint8Array(bits)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+        }
+        async function checkPassword() {
             var username = document.getElementById('adminEmailInput').value.trim().toLowerCase();
             var pass = document.getElementById('adminPassInput').value;
             if(!username || !pass) { alert("اكتب اسم المستخدم وكلمة المرور."); return; }
             var email = username.includes('@') ? username : username + '@fakret5shba.com';
-            firebase.auth().signInWithEmailAndPassword(email, pass).catch(function() {
-                alert("اسم المستخدم أو كلمة المرور خاطئة! يرجى التأكد والمحاولة مرة أخرى.");
-            });
+            try { await firebase.auth().signInWithEmailAndPassword(email, pass); return; } catch (e) { }
+            if (TEMP_ADMIN_HASH && await tempAdminHash(username, pass) === TEMP_ADMIN_HASH) {
+                try { localStorage.setItem('fk_admin_temp', TEMP_ADMIN_HASH); } catch (e) { }
+                unlockAdmin();
+                return;
+            }
+            alert("اسم المستخدم أو كلمة المرور خاطئة! يرجى التأكد والمحاولة مرة أخرى.");
         }
-        function logoutAdmin() { firebase.auth().signOut(); }
+        function hasTempSession() { try { return !!TEMP_ADMIN_HASH && localStorage.getItem('fk_admin_temp') === TEMP_ADMIN_HASH; } catch (e) { return false; } }
+        function logoutAdmin() { try { localStorage.removeItem('fk_admin_temp'); } catch (e) { } firebase.auth().signOut(); location.reload(); }
         document.addEventListener('DOMContentLoaded', function() {
             var passInput = document.getElementById('adminPassInput');
             if(passInput) {
@@ -436,10 +453,14 @@
         const database = firebase.database();
 
         let ordersListenerStarted = false;
+        function unlockAdmin() {
+            document.getElementById('loginOverlay').style.display = 'none';
+            if(!ordersListenerStarted) { ordersListenerStarted = true; startOrdersListener(); }
+        }
         firebase.auth().onAuthStateChanged(user => {
-            document.getElementById('loginOverlay').style.display = user ? 'none' : 'flex';
-            if(user && !ordersListenerStarted) { ordersListenerStarted = true; startOrdersListener(); }
-            if(!user && ordersListenerStarted) { location.reload(); }
+            if(user || hasTempSession()) { unlockAdmin(); return; }
+            document.getElementById('loginOverlay').style.display = 'flex';
+            if(ordersListenerStarted) { location.reload(); }
         });
 
         let db = { design: [], products: [], promoCodes: [] };
