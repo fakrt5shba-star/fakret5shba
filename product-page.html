@@ -72,6 +72,8 @@
                 const media = [...(p.video ? [{ src: p.video, video: true }] : []), ...p.images.map(src => ({ src }))];
                 if (!media.length) media.push({ src: '' });
                 const isQuote = p.price.kind === 'quote';
+                // إجمالي مبدئي بيتحدث مع الاختيار والكمية — من أسعار قاعدة البيانات نفسها
+                const showTotal = !p.price.unit && (p.price.kind === 'fixed' || p.price.kind === 'options');
                 // الصور التوضيحية (موكاب) بيظهر عليها كده عشان العميل يفرق بينها وبين صور الشغل الحقيقي
                 const mockTag = src => p.mockupImages.includes(src) ? '<span class="mockup-tag"><i class="fa-solid fa-pen-ruler"></i> صورة توضيحية</span>' : '';
                 const shareUrl = `${FK_CONFIG.siteUrl}/product?id=${encodeURIComponent(p.id)}`;
@@ -99,6 +101,8 @@
                             <p class="small muted">${FK.money(p.price.value)} لكل ${FK.esc(p.price.unit)}، والسعر ده مبدئي للمساحة بس. تفاصيل الطباعة والتركيب والشحن بنأكدها معاك قبل التنفيذ.</p>
                             <span class="field-error" id="dimError" style="display:none">اكتب العرض والارتفاع بالسنتيمتر (10 سم على الأقل)</span>
                         </div>` : ''}
+                        ${showTotal ? `<div class="calc-out live-total"><span>الإجمالي المبدئي <small class="muted">(السعر النهائي بعد مراجعة التفاصيل)</small></span><strong id="liveTotal">${FK.money(p.price.kind === 'options' ? p.price.options[0].price : p.price.value)}</strong></div>
+                        <a class="small" href="/quote?product=${encodeURIComponent(p.id)}"><i class="fa-solid fa-ruler-combined"></i> عايز مقاس مخصوص؟ اطلب عرض سعر</a>` : ''}
                         ${p.designMockup ? `<div class="notice"><i class="fa-solid fa-pen-ruler"></i><span>الصورة تصميم توضيحي من فكرة خشبة. بننفذه بنفس الفكرة والخامات المذكورة، وتقدر تغيّر الكلام والألوان والمقاس.</span></div>` : ''}
                         ${p.materials.length ? `<div><h2 class="h3" style="margin-bottom:8px">الخامات والمواصفات</h2><ul class="spec-list">${p.materials.map(m => `<li><i class="fa-solid fa-circle"></i>${FK.esc(m)}</li>`).join('')}</ul></div>` : ''}
                         ${needsName ? `<div class="field"><label for="nameText">الاسم أو الكلام اللي هيتكتب <span class="muted">(مطلوب)</span></label><input id="nameText" type="text" maxlength="40" placeholder="مثال: Mariam" autocomplete="off"><span class="field-error" id="nameError" style="display:none">اكتب الاسم اللي عايزه على اللوحة</span></div>` : ''}
@@ -141,8 +145,16 @@
                 }));
                 if (!isQuote) {
                     let qty = 1; const qv = document.getElementById('qVal');
-                    document.getElementById('qPlus').onclick = () => { qty++; qv.textContent = qty; };
-                    document.getElementById('qMinus').onclick = () => { qty = Math.max(1, qty - 1); qv.textContent = qty; };
+                    const lt = document.getElementById('liveTotal');
+                    const updateTotal = () => {
+                        if (!lt) return;
+                        const o = box.querySelector('input[name="opt"]:checked');
+                        const unitPrice = p.price.kind === 'options' ? p.price.options[o ? +o.value : 0].price : p.price.value;
+                        lt.textContent = FK.money(unitPrice * qty);
+                    };
+                    document.getElementById('qPlus').onclick = () => { qty++; qv.textContent = qty; updateTotal(); };
+                    document.getElementById('qMinus').onclick = () => { qty = Math.max(1, qty - 1); qv.textContent = qty; updateTotal(); };
+                    box.querySelectorAll('input[name="opt"]').forEach(r => r.addEventListener('change', updateTotal));
                     // منتج سعره لكل م²: السعر المبدئي = العرض × الارتفاع ÷ 10000 × سعر المتر
                     const dimW = document.getElementById('dimW'), dimH = document.getElementById('dimH');
                     const readDims = () => ({ w: parseFloat(dimW && dimW.value) || 0, h: parseFloat(dimH && dimH.value) || 0 });
