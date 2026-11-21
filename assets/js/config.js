@@ -33,7 +33,7 @@
         },
         socials: {
             facebook: 'https://www.facebook.com/fkrt.khshbh',
-            instagram: 'https://www.instagram.com/fkrt.khshbh',
+            instagram: 'https://www.instagram.com/fakrt5shba',
             tiktok: 'https://www.tiktok.com/@fkret.khshba'
         }
     };
