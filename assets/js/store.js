@@ -12,6 +12,28 @@
     // نقطة واحدة لأحداث التحليلات — لا ترسل لأي أداة حاليًا ولا تحتوي بيانات شخصية
     FK.track = (event, params) => { (window.fkEvents = window.fkEvents || []).push({ event, ...(params || {}), t: Date.now() }); };
 
+    // مصدر الزيارة (أول لمسة، بيفضل 30 يوم): من utm_source أو ?from= أو الـ referrer — مفيهوش أي بيانات شخصية
+    FK.getSource = () => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('fk_src') || 'null');
+            if (saved && Date.now() - saved.at < 30 * 864e5) return saved;
+        } catch (e) { }
+        return null;
+    };
+    (function captureSource() {
+        try {
+            const q = new URLSearchParams(location.search);
+            let src = q.get('utm_source') || q.get('from') || '';
+            const ref = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, '') : '';
+            if (!src && ref && !ref.endsWith('fakret5shba.com')) {
+                src = /instagram/.test(ref) ? 'instagram' : /facebook|fb\./.test(ref) ? 'facebook' : /tiktok/.test(ref) ? 'tiktok' : /threads/.test(ref) ? 'threads' : /google/.test(ref) ? 'google' : /whatsapp|wa\.me/.test(ref) ? 'whatsapp' : ref;
+            }
+            if (!src || FK.getSource()) return;
+            const clip = v => String(v || '').slice(0, 60);
+            localStorage.setItem('fk_src', JSON.stringify({ source: clip(src).toLowerCase(), medium: clip(q.get('utm_medium')), campaign: clip(q.get('utm_campaign')), landing: clip(location.pathname), at: Date.now() }));
+        } catch (e) { }
+    })();
+
     FK.normalizePhone = raw => {
         let p = toLatinDigits(raw).replace(/[\s\-()]/g, '');
         if (p.startsWith('+20')) p = '0' + p.slice(3);
@@ -144,6 +166,10 @@
         const db = FK.db(), O = window.FK_ORDERS;
         const orderKey = key || db.ref('orders').push().key;
         const phone = data.customerPhone || data.phone || '';
+        const src = FK.getSource();
+        data.trafficSource = src ? { source: src.source, medium: src.medium || null, campaign: src.campaign || null, landing: src.landing || null } : { source: 'direct' };
+        // يظهر للأدمن في الملاحظات لحد ما لوحة الإدارة يبقى فيها عمود للمصدر
+        if (typeof data.note === 'string') data.note += ` · المصدر: ${data.trafficSource.source}`;
         data.status = 'new';
         data.statusHistory = { new: data.timestamp || Date.now() };
         const updates = { ['orders/' + orderKey]: data };

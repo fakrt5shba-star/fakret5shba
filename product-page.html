@@ -57,6 +57,10 @@
 
             function render(p) {
                 const cat = p.categories[0] ? FK.categoryById(p.categories[0]) : null;
+                // منتجات بتتكتب باسم العميل (زي «اسم نيون» و«نيون أسماء العروسين») — الاسم بقى خانة مطلوبة لوحده
+                const needsName = /اسم|أسماء|اسماء/.test(p.name) && !/مكتب|ڤيلا|فيلا|فلل|فندق/.test(p.name);
+                const isLightbox = p.categories.includes('lightbox');
+                const photoText = `السلام عليكم، مهتم بـ ${p.name}\nهبعتلكم صورة الحيطة أو المنيو والمقاس والمحافظة:\n${location.origin}/product?id=${p.id}`;
                 document.title = `${p.name} | فكرة خشبة`;
                 const metaDesc = document.querySelector('meta[name=description]');
                 metaDesc.content = `${p.name} من فكرة خشبة${p.materials.length ? ' — ' + p.materials.join('، ') : ''}. ${p.price.kind === 'quote' ? 'اطلب عرض سعر.' : p.price.text}`;
@@ -95,7 +99,9 @@
                         </div>` : ''}
                         ${p.designMockup ? `<div class="notice"><i class="fa-solid fa-pen-ruler"></i><span>الصورة تصميم توضيحي من فكرة خشبة. بننفذه بنفس الفكرة والخامات المذكورة، وتقدر تغيّر الكلام والألوان والمقاس.</span></div>` : ''}
                         ${p.materials.length ? `<div><h2 class="h3" style="margin-bottom:8px">الخامات والمواصفات</h2><ul class="spec-list">${p.materials.map(m => `<li><i class="fa-solid fa-circle"></i>${FK.esc(m)}</li>`).join('')}</ul></div>` : ''}
-                        <div class="field"><label for="note">ملاحظات التصميم <span class="muted">(اختياري)</span></label><textarea id="note" rows="2" placeholder="مثال: الاسم المطلوب، اللون، المقاس…"></textarea></div>
+                        ${needsName ? `<div class="field"><label for="nameText">الاسم أو الكلام اللي هيتكتب <span class="muted">(مطلوب)</span></label><input id="nameText" type="text" maxlength="40" placeholder="مثال: Mariam" autocomplete="off"><span class="field-error" id="nameError" style="display:none">اكتب الاسم اللي عايزه على اللوحة</span></div>` : ''}
+                        <div class="field"><label for="note">ملاحظات التصميم <span class="muted">(اختياري)</span></label><textarea id="note" rows="2" placeholder="${needsName ? 'مثال: اللون، نوع الخط، المقاس…' : 'مثال: الاسم المطلوب، اللون، المقاس…'}"></textarea></div>
+                        ${isLightbox ? `<a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="${FK.waLink(photoText)}"><i class="fa-brands fa-whatsapp"></i> ابعت صورة الحيطة أو المنيو على واتساب</a>` : ''}
                         <div class="sticky-buy${isQuote ? ' is-quote' : ''}">
                             ${isQuote ? `
                                 <a class="btn btn-gold btn-block" href="/quote?product=${encodeURIComponent(p.id)}">اطلب عرض سعر</a>
@@ -152,7 +158,14 @@
                             dims = readDims();
                             if (!(dims.w >= 10 && dims.h >= 10)) { document.getElementById('dimError').style.display = 'block'; (dims.w >= 10 ? dimH : dimW).focus(); return; }
                         }
-                        FK.addToCart(p.id, qty, document.getElementById('note').value.trim(), opt ? opt.value : null, dims);
+                        let note = document.getElementById('note').value.trim();
+                        if (needsName) {
+                            const nm = document.getElementById('nameText'), nv = nm.value.trim();
+                            if (!nv) { document.getElementById('nameError').style.display = 'block'; nm.focus(); return; }
+                            document.getElementById('nameError').style.display = 'none';
+                            note = `الاسم: ${nv}` + (note ? ' — ' + note : '');
+                        }
+                        FK.addToCart(p.id, qty, note, opt ? opt.value : null, dims);
                     };
                 }
                 document.getElementById('shareBtn').onclick = async () => {
