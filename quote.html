@@ -53,6 +53,7 @@
                     <div class="field"><label for="qCompany">اسم الشركة أو المحل <span class="muted">اختياري</span></label><input id="qCompany" autocomplete="organization"></div>
 
                     <div class="span-2 notice"><i class="fa-solid fa-circle-info"></i><span>رفع الملفات من الموقع مش متاح حاليًا. لو عندك لوجو أو صورة، هيظهرلك زرار تبعتها بيه على واتساب بعد ما الطلب يتسجل.</span></div>
+                    <div class="span-2" id="qVipWrap"></div>
                     <div class="span-2" id="qMsg" aria-live="assertive"></div>
                     <button class="btn btn-gold btn-block span-2" type="submit" id="qSubmit">إرسال طلب عرض السعر</button>
                 </form>
@@ -76,6 +77,7 @@
             $('qGov').innerHTML = FK.govOptions();
 
             const productId = FK.qs('product');
+            $('qVipWrap').innerHTML = FK.vipHTML('qVip', FK.qs('vip') === '1');
             if (productId) FK.loadStore().then(() => { const p = FK.productById(productId); if (p) buildTypes(p.name); }).catch(() => { });
 
             function validate() {
@@ -104,7 +106,8 @@
                     `المقاس: ${size}`, `الكمية: ${$('qQty').value}`,
                     $('qCompany').value.trim() ? `الشركة/المحل: ${$('qCompany').value.trim()}` : '',
                     hasLogo ? 'العميل عنده لوجو/صورة هيبعتها واتساب' : '',
-                    `التفاصيل: ${$('qDetails').value.trim()}`
+                    `التفاصيل: ${$('qDetails').value.trim()}`,
+                    ($('qVip') || {}).checked ? '⚡ VIP مستعجل (يومين لـ ٣ أيام) — السعر حسب كمية الشغل' : ''
                 ].filter(Boolean).join('\n');
                 // بيتسجل ضمن الطلبات عشان يظهر في لوحة الإدارة الحالية بعلامة "عرض سعر"
                 const data = {
@@ -113,7 +116,7 @@
                     customerName: $('qName').value.trim(), customerPhone: FK.normalizePhone($('qPhone').value),
                     governorate: $('qGov').value, address: $('qGov').value,
                     note: details, totalPrice: 0, quantity: parseInt($('qQty').value) || 1,
-                    productId: productId || null,
+                    productId: productId || null, vip: !!($('qVip') || {}).checked,
                     timestamp: Date.now(), orderState: 'active', source: 'web-v2-quote'
                 };
                 FK.submitOrder({

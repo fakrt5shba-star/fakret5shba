@@ -428,3 +428,10 @@ main { flex: 1; }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* VIP مستعجل */
+.vip-opt { display: flex; align-items: flex-start; gap: var(--s3); border: 1.5px dashed var(--gold, #c9a227); border-radius: var(--r-sm); padding: var(--s3) var(--s4); cursor: pointer; background: rgba(201,162,39,.06); }
+.vip-opt input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--gold, #c9a227); flex-shrink: 0; }
+.vip-opt span { display: grid; gap: 2px; }
+.vip-opt small { color: var(--muted, #777); font-size: .85em; }
+.vip-opt:has(input:checked) { border-style: solid; background: rgba(201,162,39,.14); }

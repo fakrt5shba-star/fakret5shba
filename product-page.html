@@ -107,6 +107,7 @@
                         ${p.materials.length ? `<div><h2 class="h3" style="margin-bottom:8px">الخامات والمواصفات</h2><ul class="spec-list">${p.materials.map(m => `<li><i class="fa-solid fa-circle"></i>${FK.esc(m)}</li>`).join('')}</ul></div>` : ''}
                         ${needsName ? `<div class="field"><label for="nameText">الاسم أو الكلام اللي هيتكتب <span class="muted">(مطلوب)</span></label><input id="nameText" type="text" maxlength="40" placeholder="مثال: Mariam" autocomplete="off"><span class="field-error" id="nameError" style="display:none">اكتب الاسم اللي عايزه على اللوحة</span></div>` : ''}
                         <div class="field"><label for="note">ملاحظات التصميم <span class="muted">(اختياري)</span></label><textarea id="note" rows="2" placeholder="${needsName ? 'مثال: اللون، نوع الخط، المقاس…' : 'مثال: الاسم المطلوب، اللون، المقاس…'}"></textarea></div>
+                        ${FK.vipHTML('vipChk', false)}
                         ${isLightbox ? `<a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="${FK.waLink(photoText)}"><i class="fa-brands fa-whatsapp"></i> ابعت صورة الحيطة أو المنيو على واتساب</a>` : ''}
                         <div class="sticky-buy${isQuote ? ' is-quote' : ''}">
                             ${isQuote ? `
@@ -179,9 +180,20 @@
                             document.getElementById('nameError').style.display = 'none';
                             note = `الاسم: ${nv}` + (note ? ' — ' + note : '');
                         }
-                        FK.addToCart(p.id, qty, note, opt ? opt.value : null, dims);
+                        const vipBox = document.getElementById('vipChk');
+                        FK.addToCart(p.id, qty, note, opt ? opt.value : null, dims, vipBox && vipBox.checked);
                     };
                 }
+                // لو العميل اختار VIP، رسايل واتساب بتقول كده
+                const vipChk = document.getElementById('vipChk');
+                if (vipChk) vipChk.addEventListener('change', () => {
+                    const extra = vipChk.checked ? '\nعايزه VIP مستعجل (يومين لـ ٣ أيام)' : '';
+                    box.querySelectorAll('a[href^="https://wa.me/' + FK_CONFIG.whatsappSales + '"]').forEach(a => {
+                        if (!a.dataset.base) a.dataset.base = decodeURIComponent(a.href.split('?text=')[1] || '');
+                        a.href = FK.waLink(a.dataset.base + extra);
+                    });
+                    box.querySelectorAll('a[href^="/quote"]').forEach(a => { a.href = a.getAttribute('href').replace(/&vip=1$/, '') + (vipChk.checked ? '&vip=1' : ''); });
+                });
                 document.getElementById('shareBtn').onclick = async () => {
                     try { if (navigator.share) { await navigator.share({ title: p.name, url: shareUrl }); return; } } catch (e) { return; }
                     try { await navigator.clipboard.writeText(shareUrl); FK.toast('اتنسخ رابط المنتج'); } catch (e) { prompt('انسخ الرابط:', shareUrl); }

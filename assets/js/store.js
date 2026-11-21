@@ -7,6 +7,12 @@
     const esc = FK.esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const toLatinDigits = s => String(s || '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
     FK.money = n => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' ج.م';
+    // خانة VIP مستعجل — بتظهر في صفحة المنتج وفي بيانات التوصيل، ومن غير أي زيادة تلقائية في السعر
+    FK.vipHTML = (id, checked) => {
+        const v = (CFG.orders && CFG.orders.vip) || null;
+        if (!v) return '';
+        return `<label class="vip-opt" for="${id}"><input type="checkbox" id="${id}" ${checked ? 'checked' : ''}><span><strong><i class="fa-solid fa-bolt"></i> ${esc(v.label)}</strong><small>${esc(v.note)}</small></span></label>`;
+    };
     FK.waLink = (text, number) => `https://wa.me/${number || CFG.whatsappSales}?text=${encodeURIComponent(text || '')}`;
     FK.qs = (k) => new URLSearchParams(location.search).get(k);
     // نقطة واحدة لأحداث التحليلات — لا ترسل لأي أداة حاليًا ولا تحتوي بيانات شخصية
@@ -217,13 +223,14 @@
     }
     // المساحة بالمتر المربع من العرض والارتفاع بالسنتيمتر (للمنتجات اللي سعرها لكل م²)
     FK.areaM2 = dims => dims && dims.w > 0 && dims.h > 0 ? (dims.w * dims.h) / 10000 : 0;
-    FK.addToCart = (productId, qty, note, opt, dims) => {
+    FK.addToCart = (productId, qty, note, opt, dims, vip) => {
         qty = Math.max(1, parseInt(qty) || 1);
         opt = (opt === undefined || opt === null || opt === '') ? null : Number(opt);
         dims = dims && dims.w > 0 && dims.h > 0 ? { w: Math.round(dims.w), h: Math.round(dims.h) } : null;
         const sameDims = i => (!i.dims && !dims) || (i.dims && dims && i.dims.w === dims.w && i.dims.h === dims.h);
-        const existing = cart.find(i => i.id === String(productId) && (i.note || '') === (note || '') && (i.opt ?? null) === opt && sameDims(i));
-        if (existing) existing.qty += qty; else cart.push(Object.assign({ id: String(productId), qty, note: note || '', opt }, dims ? { dims } : {}));
+        vip = !!vip;
+        const existing = cart.find(i => i.id === String(productId) && (i.note || '') === (note || '') && (i.opt ?? null) === opt && sameDims(i) && !!i.vip === vip);
+        if (existing) existing.qty += qty; else cart.push(Object.assign({ id: String(productId), qty, note: note || '', opt }, dims ? { dims } : {}, vip ? { vip: true } : {}));
         saveCart();
         const p = FK.productById(productId);
         FK.track('add_to_cart', { item_id: String(productId), quantity: qty });
@@ -316,7 +323,7 @@
     };
 
     // ---------- درج السلة وإتمام الطلب ----------
-    let step = 'cart', appliedPromo = null, customer = { name: '', phone: '', gov: '', address: '', note: '' };
+    let step = 'cart', appliedPromo = null, customer = { name: '', phone: '', gov: '', address: '', note: '', vip: false };
     let drawer, overlay, lastFocus;
     function buildDrawer() {
         if (document.getElementById('cartDrawer')) return;
@@ -410,6 +417,7 @@
                     <img src="${esc(l.p.cover || FK.PLACEHOLDER)}" alt="">
                     <div>
                         <div class="ci-name">${esc(l.displayName)}</div>
+                        ${l.item.vip ? '<div class="ci-note"><i class="fa-solid fa-bolt"></i> VIP مستعجل</div>' : ''}
                         ${l.item.note ? `<div class="ci-note">ملاحظة: ${esc(l.item.note)}</div>` : ''}
                         <div class="qty" role="group" aria-label="الكمية"><button type="button" data-qty="${l.index}" data-d="1" aria-label="زيادة">+</button><span>${l.item.qty}</span><button type="button" data-qty="${l.index}" data-d="-1" aria-label="تقليل">−</button></div>
                     </div>
@@ -440,6 +448,7 @@
                     <div class="field"><label for="cGov">المحافظة</label><select id="cGov" required>${FK.govOptions(customer.gov)}</select><span class="field-error">اختار المحافظة</span></div>
                     <div class="field"><label for="cAddress">العنوان بالتفصيل</label><input id="cAddress" autocomplete="street-address" placeholder="المنطقة، الشارع، رقم العمارة" value="${esc(customer.address)}" required><span class="field-error">اكتب العنوان</span></div>
                     <div class="field"><label for="cNote">ملاحظات على الطلب <span class="muted">(اختياري)</span></label><textarea id="cNote" rows="2">${esc(customer.note)}</textarea></div>
+                    ${FK.vipHTML('cVip', customer.vip || cart.some(i => i.vip))}
                 </form>`;
             foot.innerHTML = `<button class="btn btn-gold btn-block" type="button" id="toReview">مراجعة الطلب</button><button class="btn btn-ghost btn-sm" type="button" id="backCart">رجوع للسلة</button>`;
             foot.querySelector('#backCart').onclick = () => { readDetails(); step = 'cart'; renderDrawer(); };
@@ -456,6 +465,7 @@
                     <div><dt>الموبايل</dt><dd dir="ltr" style="text-align:right">${esc(FK.normalizePhone(customer.phone))}</dd></div>
                     <div><dt>العنوان</dt><dd>${esc(customer.gov)} — ${esc(customer.address)}</dd></div>
                     ${customer.note ? `<div><dt>ملاحظات</dt><dd>${esc(customer.note)}</dd></div>` : ''}
+                    ${customer.vip ? `<div><dt>التنفيذ</dt><dd><i class="fa-solid fa-bolt"></i> VIP مستعجل — ${esc(CFG.orders.vip.note)}</dd></div>` : ''}
                 </dl>
                 <div class="review-list">${t.lines.filter(l => l.p).map(l => `<div style="display:flex; justify-content:space-between; gap:8px"><span>${esc(l.displayName)} × ${l.item.qty}${l.item.note ? `<br><span class="small muted">${esc(l.item.note)}</span>` : ''}</span><strong>${l.p.price.kind === 'quote' ? 'عرض سعر' : FK.money(l.total)}</strong></div>`).join('')}</div>
                 ${totalsHTML(t)}
@@ -496,7 +506,7 @@
     }
     function readDetails() {
         const v = id => (drawer.querySelector('#' + id) || {}).value || '';
-        customer = { name: v('cName').trim(), phone: v('cPhone').trim(), gov: v('cGov'), address: v('cAddress').trim(), note: v('cNote').trim() };
+        customer = { name: v('cName').trim(), phone: v('cPhone').trim(), gov: v('cGov'), address: v('cAddress').trim(), note: v('cNote').trim(), vip: !!(drawer.querySelector('#cVip') || {}).checked };
     }
     function validateDetails() {
         const checks = [['cName', !!customer.name], ['cPhone', FK.isValidPhone(customer.phone)], ['cGov', !!customer.gov], ['cAddress', customer.address.length >= 5]];
@@ -525,7 +535,8 @@
             orderRef: ref,
             customerName: customer.name, customerPhone: FK.normalizePhone(customer.phone),
             governorate: customer.gov, address: `${customer.gov} — ${customer.address}`,
-            cartItems, note: customer.note || 'لا توجد تفاصيل إضافية',
+            cartItems, note: [customer.vip ? '⚡ VIP مستعجل (يومين لـ ٣ أيام) — السعر حسب كمية الشغل' : '', customer.note].filter(Boolean).join('\n') || 'لا توجد تفاصيل إضافية',
+            vip: customer.vip,
             totalPrice: t.total, subTotal: t.subtotal,
             shippingFee: t.shipping,
             promoCode: appliedPromo ? appliedPromo.code : null, promoDiscount: t.discount,
@@ -534,10 +545,10 @@
         };
         FK.submitOrder({
             data: orderData,
-            tracking: { type: 'cart', items: cartItems, total: t.total, estimate: t.hasQuote, shippingFee: t.shipping, governorate: customer.gov }
+            tracking: Object.assign({ type: 'cart', items: cartItems, total: t.total, estimate: t.hasQuote, shippingFee: t.shipping, governorate: customer.gov }, customer.vip ? { vip: true } : {})
         }).then(() => {
             FK.track('purchase_request', { value: t.total, items: cartItems.length });
-            cart = []; saveCart(); appliedPromo = null;
+            cart = []; saveCart(); appliedPromo = null; customer.vip = false;
             drawer.dataset.lastRef = ref; step = 'done'; renderDrawer();
         }).catch(() => {
             btn.classList.remove('is-loading');

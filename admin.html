@@ -75,6 +75,7 @@
         .order-type-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: bold; }
         .order-type-badge.cart { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
         .order-type-badge.studio { background: rgba(212, 175, 55, 0.15); color: var(--gold); }
+        .order-type-badge.vip { background: #e74c3c; color: #fff; }
         .order-type-badge.quote { background: rgba(243, 156, 18, 0.15); color: #f39c12; }
 
         .sidebar { width: 260px; min-width: 260px; background: var(--panel); border-left: 1px solid var(--border); padding: 20px 0; display: flex; flex-direction: column; z-index: 100; }
@@ -1182,6 +1183,7 @@
                 let typeBadge = isQuote ? '<span class="order-type-badge quote">عرض سعر</span>'
                     : (order.baseDetails !== undefined || order.doorDetails !== undefined) ? '<span class="order-type-badge studio">لوحة 3D</span>'
                     : '<span class="order-type-badge cart">سلة</span>';
+                if (order.vip) typeBadge += ' <span class="order-type-badge vip"><i class="fa-solid fa-bolt"></i> VIP مستعجل</span>';
 
                 const m = O.orderMoney(order);
                 const st = orderStatus(order), stIdx = O.statusIndex(st);
