@@ -9,7 +9,12 @@
     }
   ],
   "rewrites": [
-    { "source": "/meta-catalog.csv", "destination": "/api/meta-catalog" }
+    { "source": "/meta-catalog.csv", "destination": "/api/meta-catalog" },
+    {
+      "source": "/product",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(facebookexternalhit|Facebot|meta-externalagent|WhatsApp|Twitterbot|TelegramBot|LinkedInBot|Slackbot|Discordbot|Pinterest|SkypeUriPreview|Snapchat|redditbot|Viber).*" }],
+      "destination": "/api/product-og"
+    }
   ],
   "headers": [
     {

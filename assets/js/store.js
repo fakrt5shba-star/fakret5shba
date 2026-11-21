@@ -37,10 +37,12 @@
     FK.categoryById = id => FK.CATEGORIES.find(c => c.id === id);
 
     // ---------- الأسعار ----------
-    // ثابت: رقم · نطاق: "2600 - 3000" · عرض سعر: رابط واتساب أو فاضي
-    function priceInfo(rawPrice, rawDiscount) {
+    // ثابت: رقم · نطاق: "2600 - 3000" · اختيارات: نطاق + optionLabels بنفس العدد · عرض سعر: رابط واتساب أو فاضي
+    // priceUnit (اختياري) زي "م²" بيظهر جنب السعر
+    function priceInfo(rawPrice, rawDiscount, optionLabels, unit) {
         const str = toLatinDigits(String(rawPrice == null ? '' : rawPrice)).trim();
         const discount = Math.max(0, Math.min(90, parseFloat(rawDiscount) || 0));
+        unit = unit ? String(unit) : '';
         if (!str || /^(https?:|wa\.me)/i.test(str)) {
             const link = str ? (str.startsWith('wa.me') ? 'https://' + str : str) : '';
             return { kind: 'quote', value: 0, link, text: 'اطلب عرض سعر' };
@@ -48,20 +50,27 @@
         const nums = (str.match(/\d+(\.\d+)?/g) || []).map(Number);
         if (nums.length > 1) {
             const min = Math.min(...nums);
-            return { kind: 'range', value: min, min, options: nums, text: 'يبدأ من ' + FK.money(min) };
+            if (optionLabels && optionLabels.length === nums.length) {
+                return { kind: 'options', value: min, min, unit, options: nums.map((price, i) => ({ label: optionLabels[i], price })), text: 'يبدأ من ' + FK.money(min) };
+            }
+            return { kind: 'range', value: min, min, unit, options: nums, text: 'يبدأ من ' + FK.money(min) };
         }
         const base = nums[0] || 0;
         if (!base) return { kind: 'quote', value: 0, link: '', text: 'اطلب عرض سعر' };
         const final = discount ? Math.round(base * (100 - discount)) / 100 : base;
-        return { kind: 'fixed', value: final, base, discount, text: FK.money(final) };
+        return { kind: 'fixed', value: final, base, discount, unit, text: FK.money(final) };
     }
     FK.priceInfo = priceInfo;
     FK.priceHTML = (pi, big) => {
         if (pi.kind === 'quote') return `<span class="quote"><i class="fa-brands fa-whatsapp"></i> اطلب عرض سعر</span>`;
-        if (pi.kind === 'range') return `<span class="from">يبدأ من</span> ${FK.money(pi.min)}`;
-        if (pi.discount) return `${FK.money(pi.value)} <del>${FK.money(pi.base)}</del>${big ? ` <span class="badge">خصم ${pi.discount}%</span>` : ''}`;
-        return FK.money(pi.value);
+        const unit = pi.unit ? ` <span class="from">/ ${esc(pi.unit)}</span>` : '';
+        if (pi.kind === 'range' || pi.kind === 'options') return `<span class="from">يبدأ من</span> ${FK.money(pi.min)}${unit}`;
+        if (pi.discount) return `${FK.money(pi.value)}${unit} <del>${FK.money(pi.base)}</del>${big ? ` <span class="badge">خصم ${pi.discount}%</span>` : ''}`;
+        return FK.money(pi.value) + unit;
     };
+    // سعر الوحدة لاختيار معيّن (أو أقل سعر لو مفيش اختيار)
+    FK.unitPrice = (p, opt) => (p.price.kind === 'options' && p.price.options[opt]) ? p.price.options[opt].price : p.price.value;
+    FK.optionLabel = (p, opt) => (p.price.kind === 'options' && p.price.options[opt]) ? p.price.options[opt].label : '';
 
     // ---------- الميديا ----------
     const isGoodSrc = s => typeof s === 'string' && ((s.startsWith('data:') && s.includes(',') && s.length > 100) || /^https?:\/\//.test(s));
@@ -84,12 +93,14 @@
         const categories = FK.CATEGORIES.filter(c => c.match.some(m => hay.includes(m.toLowerCase()))).map(c => c.id);
         const images = [p.image, ...(Array.isArray(p.extraImages) ? p.extraImages : Object.values(p.extraImages || {}))].filter(isGoodSrc);
         const name = String(p.name || '').replace(/[✨🏠]/gu, '').replace(/\s+/g, ' ').trim();
+        const optionLabels = (Array.isArray(p.optionLabels) ? p.optionLabels : Object.values(p.optionLabels || {})).map(s => String(s).trim()).filter(Boolean);
         return {
             raw: p, id: String(p.id), name, labels, categories,
             images, cover: images[0] || '', video: isGoodSrc(p.video) ? p.video : '', mediaLoop: p.mediaLoop,
             desc: String(p.desc || p.description || '').trim(),
             materials: String(p.material || '').split(/\n|\r/).map(s => s.trim()).filter(Boolean),
-            price: priceInfo(p.price, p.discount),
+            price: priceInfo(p.price, p.discount, optionLabels, p.priceUnit),
+            designMockup: !!p.designMockup,
             created: Number(p.id) || 0
         };
     }
@@ -146,10 +157,11 @@
         const n = cart.reduce((s, i) => s + i.qty, 0);
         document.querySelectorAll('[data-cart-count]').forEach(el => { el.textContent = n; el.dataset.count = n; });
     }
-    FK.addToCart = (productId, qty, note) => {
+    FK.addToCart = (productId, qty, note, opt) => {
         qty = Math.max(1, parseInt(qty) || 1);
-        const existing = cart.find(i => i.id === String(productId) && (i.note || '') === (note || ''));
-        if (existing) existing.qty += qty; else cart.push({ id: String(productId), qty, note: note || '' });
+        opt = (opt === undefined || opt === null || opt === '') ? null : Number(opt);
+        const existing = cart.find(i => i.id === String(productId) && (i.note || '') === (note || '') && (i.opt ?? null) === opt);
+        if (existing) existing.qty += qty; else cart.push({ id: String(productId), qty, note: note || '', opt });
         saveCart();
         const p = FK.productById(productId);
         FK.track('add_to_cart', { item_id: String(productId), quantity: qty });
@@ -274,7 +286,9 @@
         return cart.map((item, index) => {
             const p = FK.productById(item.id);
             if (!p) return { item, index, p: null, unit: 0, total: 0 };
-            return { item, index, p, unit: p.price.value, total: p.price.value * item.qty };
+            const unit = FK.unitPrice(p, item.opt);
+            const label = FK.optionLabel(p, item.opt);
+            return { item, index, p, unit, total: unit * item.qty, label, displayName: label ? `${p.name} — ${label}` : p.name };
         });
     }
     function totals() {
@@ -283,7 +297,8 @@
         let discount = 0;
         if (appliedPromo && subtotal > 0) discount = appliedPromo.type === 'percent' ? subtotal * (Number(appliedPromo.value) / 100) : Number(appliedPromo.value) || 0;
         discount = Math.min(subtotal, Math.round(discount * 100) / 100);
-        return { lines, subtotal, discount, total: Math.max(0, subtotal - discount), hasQuote: lines.some(l => l.p && l.p.price.kind !== 'fixed') };
+        const isEstimate = l => l.p && (l.p.price.kind === 'quote' || l.p.price.kind === 'range' || !!l.p.price.unit || (l.p.price.kind === 'options' && !l.label));
+        return { lines, subtotal, discount, total: Math.max(0, subtotal - discount), hasQuote: lines.some(isEstimate) };
     }
     function setStepIndicator() {
         const order = ['cart', 'details', 'review', 'done'];
@@ -318,7 +333,7 @@
                 <div class="cart-item">
                     <img src="${esc(l.p.cover || FK.PLACEHOLDER)}" alt="">
                     <div>
-                        <div class="ci-name">${esc(l.p.name)}</div>
+                        <div class="ci-name">${esc(l.displayName)}</div>
                         ${l.item.note ? `<div class="ci-note">ملاحظة: ${esc(l.item.note)}</div>` : ''}
                         <div class="qty" role="group" aria-label="الكمية"><button type="button" data-qty="${l.index}" data-d="1" aria-label="زيادة">+</button><span>${l.item.qty}</span><button type="button" data-qty="${l.index}" data-d="-1" aria-label="تقليل">−</button></div>
                     </div>
@@ -366,7 +381,7 @@
                     <div><dt>العنوان</dt><dd>${esc(customer.gov)} — ${esc(customer.address)}</dd></div>
                     ${customer.note ? `<div><dt>ملاحظات</dt><dd>${esc(customer.note)}</dd></div>` : ''}
                 </dl>
-                <div class="review-list">${t.lines.filter(l => l.p).map(l => `<div style="display:flex; justify-content:space-between; gap:8px"><span>${esc(l.p.name)} × ${l.item.qty}${l.item.note ? `<br><span class="small muted">${esc(l.item.note)}</span>` : ''}</span><strong>${l.p.price.kind === 'quote' ? 'عرض سعر' : FK.money(l.total)}</strong></div>`).join('')}</div>
+                <div class="review-list">${t.lines.filter(l => l.p).map(l => `<div style="display:flex; justify-content:space-between; gap:8px"><span>${esc(l.displayName)} × ${l.item.qty}${l.item.note ? `<br><span class="small muted">${esc(l.item.note)}</span>` : ''}</span><strong>${l.p.price.kind === 'quote' ? 'عرض سعر' : FK.money(l.total)}</strong></div>`).join('')}</div>
                 ${totalsHTML(t)}
                 <div class="notice"><i class="fa-solid fa-circle-info"></i><span>الدفع بيتم بعد ما نكلمك ونأكد التفاصيل والسعر النهائي. مفيش دفع أونلاين على الموقع.</span></div>
                 <div id="submitMsg" aria-live="assertive"></div>`;
@@ -419,10 +434,11 @@
         btn.classList.add('is-loading'); msg.innerHTML = '';
         const t = totals(), ref = FK.makeRef();
         const cartItems = t.lines.filter(l => l.p).map(l => ({
-            id: l.p.id, name: l.p.name, image: l.p.cover || '', qty: l.item.qty,
-            note: [l.item.qty > 1 ? `الكمية: ${l.item.qty}` : '', l.item.note].filter(Boolean).join(' — '),
+            id: l.p.id, name: l.displayName, image: l.p.cover || '', qty: l.item.qty,
+            option: l.label || null,
+            note: [l.item.qty > 1 ? `الكمية: ${l.item.qty}${l.p.price.unit ? ' ' + l.p.price.unit : ''}` : '', l.item.note].filter(Boolean).join(' — '),
             isLink: l.p.price.kind === 'quote',
-            priceText: l.p.price.kind === 'quote' ? 'تواصل للسعر' : (l.p.price.kind === 'range' ? `يبدأ من ${l.total}` : String(l.total)),
+            priceText: l.p.price.kind === 'quote' ? 'تواصل للسعر' : ((l.p.price.kind === 'range' || (l.p.price.kind === 'options' && !l.label)) ? `يبدأ من ${l.total}` : String(l.total)),
             finalPrice: l.total
         }));
         const orderData = {

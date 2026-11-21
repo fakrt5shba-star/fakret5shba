@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فكرة خشبة | روابطنا</title>
+    <meta name="description" content="كل روابط فكرة خشبة في مكان واحد: المتجر، صمّم لوحتك، اطلب عرض سعر، واتساب، فيسبوك، إنستجرام وتيك توك.">
+    <link rel="canonical" href="https://fakret5shba.com/links">
+    <meta name="theme-color" content="#0B0B0D">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230B0B0D'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='%23D4AF37' font-family='Arial' font-weight='bold'>ف</text></svg>">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="فكرة خشبة — كل روابطنا">
+    <meta property="og:description" content="اطلب أونلاين، صمّم لوحتك، أو كلمنا على واتساب.">
+    <meta property="og:image" content="https://fakret5shba.com/assets/img/hero-neon-coffee.jpeg">
+    <meta property="og:url" content="https://fakret5shba.com/links">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <style>
+        .links-wrap { max-width: 520px; margin: 0 auto; padding: var(--s6) var(--s4) var(--s7); display: grid; gap: var(--s4); }
+        .links-head { text-align: center; display: grid; justify-items: center; gap: var(--s2); }
+        .links-head .brand-mark { width: 88px; height: 88px; border-radius: 26px; font-size: 2.8rem; box-shadow: 0 0 40px rgba(212, 175, 55, 0.35); }
+        .links-head h1 { font-size: 1.6rem; font-weight: 800; }
+        .link-btn { display: flex; align-items: center; gap: var(--s3); min-height: 60px; padding: var(--s3) var(--s4); border-radius: var(--r); background: var(--card); border: 1px solid var(--line); font-weight: 700; font-size: 1.05rem; transition: border-color .2s, transform .2s; }
+        .link-btn:hover { border-color: var(--gold); transform: translateY(-2px); }
+        .link-btn i { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--gold-soft); color: var(--gold); font-size: 1.15rem; flex-shrink: 0; }
+        .link-btn small { display: block; font-weight: 400; color: var(--muted); font-size: 0.82rem; }
+        .link-btn .arrow { margin-inline-start: auto; color: var(--muted); }
+        .link-btn.primary { background: var(--gold); color: #0B0B0D; border-color: var(--gold); }
+        .link-btn.primary i { background: rgba(0, 0, 0, 0.12); color: #0B0B0D; }
+        .link-btn.primary small, .link-btn.primary .arrow { color: rgba(11, 11, 13, 0.7); }
+        .link-btn.wa i { background: rgba(37, 211, 102, 0.15); color: var(--wa); }
+        .social-big { display: flex; justify-content: center; gap: var(--s3); }
+        .social-big a { width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font-size: 1.3rem; color: var(--gold); transition: all .2s; }
+        .social-big a:hover { background: var(--gold); color: #0B0B0D; }
+        .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3); }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js" defer></script>
+    <script src="/assets/js/config.js" defer></script>
+    <script src="/assets/js/store.js" defer></script>
+</head>
+<body class="surface-dark">
+    <main class="links-wrap">
+        <div class="links-head">
+            <span class="brand-mark" aria-hidden="true">ف</span>
+            <h1>فكرة خشبة</h1>
+            <p class="muted">لوحات نيون · أكريليك · لايت بوكس · خشب<br>تصميم وتنفيذ حسب الطلب</p>
+        </div>
+
+        <a class="link-btn primary" data-href="/products"><i class="fa-solid fa-bag-shopping"></i><span>تسوق المنتجات<small>الأسعار والطلب أونلاين</small></span><span class="arrow">←</span></a>
+        <a class="link-btn" data-href="/index2"><i class="fa-solid fa-wand-magic-sparkles"></i><span>صمّم لوحتك بنفسك<small>معاينة 3D قبل ما تطلب</small></span><span class="arrow">←</span></a>
+        <a class="link-btn" data-href="/quote"><i class="fa-solid fa-file-pen"></i><span>اطلب عرض سعر<small>لوجو، واجهة، أو فكرة خاصة بيك</small></span><span class="arrow">←</span></a>
+        <a class="link-btn" data-href="/business"><i class="fa-solid fa-building"></i><span>حلول الشركات والمحلات<small>يفط، لايت بوكس، ستاندات مضيئة</small></span><span class="arrow">←</span></a>
+        <a class="link-btn wa" id="waLink" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span>كلمنا واتساب<small>رد سريع على استفسارك</small></span><span class="arrow">←</span></a>
+
+        <div class="social-big" aria-label="حساباتنا">
+            <a id="fbLink" target="_blank" rel="noopener" aria-label="فيسبوك"><i class="fa-brands fa-facebook-f"></i></a>
+            <a id="igLink" target="_blank" rel="noopener" aria-label="إنستجرام"><i class="fa-brands fa-instagram"></i></a>
+            <a id="ttLink" target="_blank" rel="noopener" aria-label="تيك توك"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+
+        <section aria-labelledby="newTitle" style="margin-top:8px">
+            <h2 class="h3" id="newTitle" style="margin-bottom:12px">جديدنا</h2>
+            <div class="mini-grid" id="newGrid"></div>
+        </section>
+        <p class="small muted" style="text-align:center"><a href="/" style="text-decoration:underline">fakret5shba.com</a></p>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const C = FK_CONFIG;
+            // مصدر الزيارة: /links?from=instagram أو tiktok أو facebook
+            const from = (FK.qs('from') || 'bio').replace(/[^a-z0-9_-]/gi, '').slice(0, 20);
+            const utm = `utm_source=${from}&utm_medium=social&utm_campaign=links`;
+            document.querySelectorAll('[data-href]').forEach(a => a.href = a.dataset.href + '?' + utm);
+            document.getElementById('waLink').href = FK.waLink('السلام عليكم، جاي من صفحتكم على السوشيال وعندي استفسار');
+            document.getElementById('fbLink').href = C.socials.facebook;
+            document.getElementById('igLink').href = C.socials.instagram;
+            document.getElementById('ttLink').href = C.socials.tiktok;
+            FK.track('links_view', { source: from });
+
+            const grid = document.getElementById('newGrid');
+            grid.innerHTML = FK.skeletonCards(4);
+            FK.loadStore().then(store => {
+                const latest = store.products.filter(p => p.cover).sort((a, b) => b.created - a.created).slice(0, 4);
+                grid.innerHTML = latest.map(FK.cardHTML).join('');
+            }).catch(() => { grid.innerHTML = ''; });
+        });
+    </script>
+</body>
+</html>

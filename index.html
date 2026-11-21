@@ -130,6 +130,18 @@
             </div>
         </section>
 
+        <section class="section-tight" aria-labelledby="socialTitle">
+            <div class="container">
+                <div class="section-head"><div><span class="eyebrow">تابعنا</span><h2 class="h2" id="socialTitle">شوف شغلنا أول بأول</h2></div><p class="muted">بننزل الشغل الجديد والعروض على صفحاتنا قبل أي مكان.</p></div>
+                <div class="social-cards">
+                    <a class="social-card" data-social="instagram" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i><span><strong>إنستجرام</strong><small>صور الشغل والتصميمات</small></span></a>
+                    <a class="social-card" data-social="tiktok" target="_blank" rel="noopener"><i class="fa-brands fa-tiktok"></i><span><strong>تيك توك</strong><small>فيديوهات التنفيذ والتركيب</small></span></a>
+                    <a class="social-card" data-social="facebook" target="_blank" rel="noopener"><i class="fa-brands fa-facebook-f"></i><span><strong>فيسبوك</strong><small>العروض وآراء العملاء</small></span></a>
+                    <a class="social-card wa" data-social="whatsapp" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i><span><strong>واتساب</strong><small>اسأل واطلب مباشرة</small></span></a>
+                </div>
+            </div>
+        </section>
+
         <section class="section-tight">
             <div class="container">
                 <div class="cta-band">
@@ -151,6 +163,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             FK.renderChrome('home');
+            document.querySelectorAll('[data-social]').forEach(a => {
+                const k = a.dataset.social;
+                a.href = k === 'whatsapp' ? FK.waLink('السلام عليكم، عندي استفسار عن منتجات فكرة خشبة') : FK_CONFIG.socials[k];
+            });
 
             const catGrid = document.getElementById('catGrid');
             const renderCats = (counts) => {

@@ -79,6 +79,9 @@
                         <h1 class="h2">${FK.esc(p.name)}</h1>
                         <div class="pd-price">${FK.priceHTML(p.price, true)}</div>
                         ${p.price.kind === 'range' ? `<p class="small muted">السعر حسب المقاس: ${p.price.options.map(FK.money).join(' / ')}. اكتب المقاس اللي محتاجه في الملاحظات.</p>` : ''}
+                        ${p.price.kind === 'options' ? `<fieldset class="opt-group"><legend>اختار النوع</legend>${p.price.options.map((o, i) => `<label class="opt"><input type="radio" name="opt" value="${i}" ${i === 0 ? 'checked' : ''}><span>${FK.esc(o.label)}</span><strong>${FK.money(o.price)}</strong></label>`).join('')}</fieldset>` : ''}
+                        ${p.price.unit ? `<p class="small muted">السعر لكل ${FK.esc(p.price.unit)}. اختار الكمية بعدد الأمتار التقريبي واكتب المقاس في الملاحظات، وهنحسب السعر النهائي حسب المساحة الفعلية.</p>` : ''}
+                        ${p.designMockup ? `<div class="notice"><i class="fa-solid fa-pen-ruler"></i><span>الصورة تصميم توضيحي من فكرة خشبة. بننفذه بنفس الفكرة والخامات المذكورة، وتقدر تغيّر الكلام والألوان والمقاس.</span></div>` : ''}
                         ${p.materials.length ? `<div><h2 class="h3" style="margin-bottom:8px">الخامات والمواصفات</h2><ul class="spec-list">${p.materials.map(m => `<li><i class="fa-solid fa-circle"></i>${FK.esc(m)}</li>`).join('')}</ul></div>` : ''}
                         <div class="field"><label for="note">ملاحظات التصميم <span class="muted">(اختياري)</span></label><textarea id="note" rows="2" placeholder="مثال: الاسم المطلوب، اللون، المقاس…"></textarea></div>
                         <div class="sticky-buy" style="display:grid; gap:12px">
@@ -98,7 +101,12 @@
                             <div><i class="fa-solid fa-phone"></i>تأكيد قبل التنفيذ</div>
                             <div><i class="fa-solid fa-hand-holding-dollar"></i>الدفع بعد التأكيد</div>
                         </div>
-                        <button class="btn btn-ghost btn-sm" type="button" id="shareBtn" style="justify-self:start"><i class="fa-solid fa-share-nodes"></i> مشاركة المنتج</button>
+                        <div class="share-row" aria-label="مشاركة المنتج">
+                            <span class="small muted">شارك:</span>
+                            <a class="icon-btn" target="_blank" rel="noopener" aria-label="مشاركة على واتساب" href="https://wa.me/?text=${encodeURIComponent(p.name + ' — فكرة خشبة\n' + shareUrl)}"><i class="fa-brands fa-whatsapp"></i></a>
+                            <a class="icon-btn" target="_blank" rel="noopener" aria-label="مشاركة على فيسبوك" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}"><i class="fa-brands fa-facebook-f"></i></a>
+                            <button class="icon-btn" type="button" id="shareBtn" aria-label="نسخ أو مشاركة الرابط"><i class="fa-solid fa-link"></i></button>
+                        </div>
                         ${p.desc ? `<div><h2 class="h3" style="margin-bottom:8px">الوصف</h2><p class="pd-desc">${FK.esc(p.desc)}</p></div>` : ''}
                     </div>
                 </div>`;
@@ -113,7 +121,10 @@
                     let qty = 1; const qv = document.getElementById('qVal');
                     document.getElementById('qPlus').onclick = () => { qty++; qv.textContent = qty; };
                     document.getElementById('qMinus').onclick = () => { qty = Math.max(1, qty - 1); qv.textContent = qty; };
-                    document.getElementById('addBtn').onclick = () => FK.addToCart(p.id, qty, document.getElementById('note').value.trim());
+                    document.getElementById('addBtn').onclick = () => {
+                        const opt = box.querySelector('input[name="opt"]:checked');
+                        FK.addToCart(p.id, qty, document.getElementById('note').value.trim(), opt ? opt.value : null);
+                    };
                 }
                 document.getElementById('shareBtn').onclick = async () => {
                     try { if (navigator.share) { await navigator.share({ title: p.name, url: shareUrl }); return; } } catch (e) { return; }

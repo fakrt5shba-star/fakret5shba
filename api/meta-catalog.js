@@ -1,6 +1,6 @@
 // /meta-catalog.csv — كتالوج ميتا بيتولّد من قاعدة البيانات في كل طلب (مع كاش 5 دقايق)
 // الأسعار والخصومات والصور من قاعدة البيانات، والعناوين والأوصاف من data/meta-catalog.json لو موجودة
-const { CFG, loadProducts, productImages, parsePrice, isHttps } = require('./_shared');
+const { CFG, toArr, loadProducts, productImages, parsePrice, isHttps } = require('./_shared');
 const CONTENT = require('../data/meta-catalog.json').products || {};
 
 const COLUMNS = ['id', 'title', 'description', 'availability', 'condition', 'price', 'sale_price', 'link', 'image_link', 'brand', 'item_group_id', 'size', 'custom_label_0'];
@@ -40,6 +40,18 @@ function rowsFor(p) {
     };
     if (price.kind === 'range') {
         const variants = Array.isArray(content.variants) && content.variants.length === price.options.length ? content.variants : null;
+        const labels = toArr(p.optionLabels).map(s => String(s).trim()).filter(Boolean);
+        if (!variants && labels.length === price.options.length) {
+            // اختيارات من لوحة الإدارة (optionLabels): سطر لكل اختيار. المقاسات بس هي اللي بتتجمع كـ variants
+            return labels.map((label, i) => {
+                const isSize = /سم|×|متر|cm/i.test(label);
+                return {
+                    ...base, id: `${id}-${i + 1}`, title: `${content.title || cleanText(p.name)} — ${label}`,
+                    description: content.description || fallbackDescription(p), price: money(price.options[i]), sale_price: '',
+                    item_group_id: isSize ? id : '', size: isSize ? label : ''
+                };
+            });
+        }
         if (!variants) {
             return [{ ...base, id, title: content.title || cleanText(p.name), description: content.description || fallbackDescription(p), price: money(Math.min(...price.options)), sale_price: '', item_group_id: '', size: '' }];
         }

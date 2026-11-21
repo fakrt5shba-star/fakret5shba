@@ -762,7 +762,11 @@
                 
                 if(idStr) { 
                     let existing = db.products.find(x => x.id == parseInt(idStr)); 
-                    if(existing) { p.image = existing.image || ''; p.extraImages = existing.extraImages || []; if(!p.video) p.video = existing.video || ''; } 
+                    if(existing) {
+                        p.image = existing.image || ''; p.extraImages = existing.extraImages || []; if(!p.video) p.video = existing.video || '';
+                        // الحفاظ على الحقول الإضافية (زي optionLabels و priceUnit) اللي مش في الفورم
+                        for (const k in existing) { if (!(k in p)) p[k] = existing[k]; }
+                    }
                 }
 
                 const compressAndRead = file => new Promise((resolve, reject) => {
