@@ -33,6 +33,7 @@ function rowsFor(p) {
     const price = parsePrice(p.price, p.discount);
     const image = imageLink(p);
     if (price.kind === 'quote' || !image) return []; // ميتا بيطلب سعر وصورة
+    if (String(p.priceUnit || '').trim()) return []; // سعر لكل م² مش سعر قطعة — ميتا هيعرضه كسعر ثابت
     const content = CONTENT[id] || {};
     const base = {
         availability: 'in stock', condition: 'new', link: `${CFG.siteUrl}/?product=${encodeURIComponent(id)}`,

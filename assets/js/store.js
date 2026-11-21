@@ -27,6 +27,7 @@
 
     // ---------- التصنيفات الموحدة (راجع PRODUCT_AUDIT.md) ----------
     FK.CATEGORIES = [
+        { id: 'lightbox', name: 'لايت بوكس وستاندات مضيئة', img: '/assets/img/cat-lightbox.jpeg', match: ['لايت بوكس', 'lightbox', 'ستاند مضيء', 'ستاندات مضيئة', 'ستاند إعلان مضيء'], wide: true },
         { id: 'neon', name: 'لوحات نيون', img: '/assets/img/cat-neon.jpeg', match: ['نيون', 'neon'] },
         { id: 'business', name: 'لوحات الشركات والدعاية', img: '/assets/img/cat-business.jpeg', match: ['دعاية', 'شركة', 'لوجو', 'logo', 'لايت بوكس'] },
         { id: 'qr', name: 'استاندات QR و NFC', img: '/assets/img/cat-qr.jpeg', match: ['qr', 'nfc', 'stand'] },
@@ -101,14 +102,20 @@
             materials: String(p.material || '').split(/\n|\r/).map(s => s.trim()).filter(Boolean),
             price: priceInfo(p.price, p.discount, optionLabels, p.priceUnit),
             designMockup: !!p.designMockup,
+            // صور توضيحية (موكاب) جوه معرض المنتج — بيظهر عليها «صورة توضيحية»
+            mockupImages: (Array.isArray(p.mockupImages) ? p.mockupImages : Object.values(p.mockupImages || {})).filter(isGoodSrc),
+            featured: p.featured === true,
+            featuredRank: Number(p.featuredRank) || 999,
             created: Number(p.id) || 0
         };
     }
+    // «أحسن منتجاتنا»: المنتجات المميزة بالترتيب
+    FK.featuredProducts = (list) => (list || (FK.store ? FK.store.products : [])).filter(p => p.featured).sort((a, b) => a.featuredRank - b.featuredRank || b.created - a.created);
     FK.cardHTML = (p) => {
         const cat = p.categories[0] ? FK.categoryById(p.categories[0]).name : '';
         const badge = p.price.discount ? `<span class="badge">خصم ${p.price.discount}%</span>` : '';
-        return `<article class="p-card">
-            ${badge}
+        return `<article class="p-card${p.featured ? ' is-featured' : ''}">
+            ${badge}${p.featured ? '<span class="badge-feat"><i class="fa-solid fa-star"></i> مميز</span>' : ''}
             <div class="p-media">${FK.mediaHTML(p.cover, p.name)}</div>
             <div class="p-body">
                 ${cat ? `<span class="p-cat">${esc(cat)}</span>` : ''}
@@ -182,11 +189,15 @@
         const n = cart.reduce((s, i) => s + i.qty, 0);
         document.querySelectorAll('[data-cart-count]').forEach(el => { el.textContent = n; el.dataset.count = n; });
     }
-    FK.addToCart = (productId, qty, note, opt) => {
+    // المساحة بالمتر المربع من العرض والارتفاع بالسنتيمتر (للمنتجات اللي سعرها لكل م²)
+    FK.areaM2 = dims => dims && dims.w > 0 && dims.h > 0 ? (dims.w * dims.h) / 10000 : 0;
+    FK.addToCart = (productId, qty, note, opt, dims) => {
         qty = Math.max(1, parseInt(qty) || 1);
         opt = (opt === undefined || opt === null || opt === '') ? null : Number(opt);
-        const existing = cart.find(i => i.id === String(productId) && (i.note || '') === (note || '') && (i.opt ?? null) === opt);
-        if (existing) existing.qty += qty; else cart.push({ id: String(productId), qty, note: note || '', opt });
+        dims = dims && dims.w > 0 && dims.h > 0 ? { w: Math.round(dims.w), h: Math.round(dims.h) } : null;
+        const sameDims = i => (!i.dims && !dims) || (i.dims && dims && i.dims.w === dims.w && i.dims.h === dims.h);
+        const existing = cart.find(i => i.id === String(productId) && (i.note || '') === (note || '') && (i.opt ?? null) === opt && sameDims(i));
+        if (existing) existing.qty += qty; else cart.push(Object.assign({ id: String(productId), qty, note: note || '', opt }, dims ? { dims } : {}));
         saveCart();
         const p = FK.productById(productId);
         FK.track('add_to_cart', { item_id: String(productId), quantity: qty });
@@ -312,8 +323,10 @@
         return cart.map((item, index) => {
             const p = FK.productById(item.id);
             if (!p) return { item, index, p: null, unit: 0, total: 0 };
-            const unit = FK.unitPrice(p, item.opt);
-            const label = FK.optionLabel(p, item.opt);
+            const area = p.price.unit ? FK.areaM2(item.dims) : 0;
+            // سعر لكل م² + مقاس: سعر القطعة = سعر المتر × المساحة
+            const unit = area ? Math.round(FK.unitPrice(p, item.opt) * area) : FK.unitPrice(p, item.opt);
+            const label = area ? `${item.dims.w} × ${item.dims.h} سم` : FK.optionLabel(p, item.opt);
             return { item, index, p, unit, total: unit * item.qty, label, displayName: label ? `${p.name} — ${label}` : p.name };
         });
     }
@@ -473,7 +486,11 @@
         const cartItems = t.lines.filter(l => l.p).map(l => ({
             id: l.p.id, name: l.displayName, image: l.p.cover || '', qty: l.item.qty,
             option: l.label || null,
-            note: [l.item.qty > 1 ? `الكمية: ${l.item.qty}${l.p.price.unit ? ' ' + l.p.price.unit : ''}` : '', l.item.note].filter(Boolean).join(' — '),
+            note: [
+                l.item.dims && l.p.price.unit ? `المقاس ${l.item.dims.w} × ${l.item.dims.h} سم = ${FK.areaM2(l.item.dims).toFixed(2)} ${l.p.price.unit} (سعر مبدئي)` : '',
+                l.item.qty > 1 ? `الكمية: ${l.item.qty}${l.p.price.unit && !l.item.dims ? ' ' + l.p.price.unit : ''}` : '',
+                l.item.note
+            ].filter(Boolean).join(' — '),
             isLink: l.p.price.kind === 'quote',
             priceText: l.p.price.kind === 'quote' ? 'تواصل للسعر' : ((l.p.price.kind === 'range' || (l.p.price.kind === 'options' && !l.label)) ? `يبدأ من ${l.total}` : String(l.total)),
             finalPrice: l.total

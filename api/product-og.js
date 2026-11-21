@@ -13,12 +13,13 @@ module.exports = async (req, res) => {
         const p = (await loadProducts()).find(x => String(x.id) === id);
         if (p) {
             const price = parsePrice(p.price, p.discount);
-            const priceText = price.kind === 'fixed' ? `${price.final.toLocaleString('en-US')} ج.م` : price.kind === 'range' ? `يبدأ من ${Math.min(...price.options).toLocaleString('en-US')} ج.م` : 'اطلب عرض سعر';
+            const unit = String(p.priceUnit || '').trim();
+            const priceText = (price.kind === 'fixed' ? `${price.final.toLocaleString('en-US')} ج.م` : price.kind === 'range' ? `يبدأ من ${Math.min(...price.options).toLocaleString('en-US')} ج.م` : 'اطلب عرض سعر') + (unit && price.kind !== 'quote' ? ` / ${unit}` : '');
             title = `${clean(p.name)} — ${priceText} | فكرة خشبة`;
             desc = clean(p.desc || p.description || String(p.material || '').replace(/[\r\n]+/g, '، ')).slice(0, 200) || desc;
             const first = productImages(p)[0];
             if (first) image = isHttps(first) ? first : `${CFG.siteUrl}/api/product-image?id=${encodeURIComponent(id)}&n=0`;
-            if (price.kind === 'fixed') priceTags = `<meta property="product:price:amount" content="${price.final}"><meta property="product:price:currency" content="EGP">`;
+            if (price.kind === 'fixed' && !unit) priceTags = `<meta property="product:price:amount" content="${price.final}"><meta property="product:price:currency" content="EGP">`;
         }
     } catch (e) { /* بنرجع المعاينة العامة */ }
 

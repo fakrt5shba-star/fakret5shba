@@ -66,13 +66,15 @@
                 const media = [...(p.video ? [{ src: p.video, video: true }] : []), ...p.images.map(src => ({ src }))];
                 if (!media.length) media.push({ src: '' });
                 const isQuote = p.price.kind === 'quote';
+                // الصور التوضيحية (موكاب) بيظهر عليها كده عشان العميل يفرق بينها وبين صور الشغل الحقيقي
+                const mockTag = src => p.mockupImages.includes(src) ? '<span class="mockup-tag"><i class="fa-solid fa-pen-ruler"></i> صورة توضيحية</span>' : '';
                 const shareUrl = `${FK_CONFIG.siteUrl}/product?id=${encodeURIComponent(p.id)}`;
                 const waText = `السلام عليكم، عايز أستفسر عن: ${p.name}\n${shareUrl}`;
 
                 box.innerHTML = `
                 <div class="pd-grid">
                     <div class="pd-gallery">
-                        <div class="pd-main" id="pdMain">${FK.mediaHTML(media[0].src, p.name, { eager: true, autoplay: true, controls: true, loop: p.mediaLoop !== false })}</div>
+                        <div class="pd-main" id="pdMain">${FK.mediaHTML(media[0].src, p.name, { eager: true, autoplay: true, controls: true, loop: p.mediaLoop !== false })}${mockTag(media[0].src)}</div>
                         ${media.length > 1 ? `<div class="pd-thumbs" role="group" aria-label="صور المنتج">${media.map((m, i) => `<button type="button" data-i="${i}" aria-current="${i === 0}" aria-label="صورة ${i + 1}">${m.video ? '<i class="fa-solid fa-play" style="font-size:1.2rem"></i>' : `<img src="${FK.esc(m.src)}" alt="" loading="lazy">`}</button>`).join('')}</div>` : ''}
                     </div>
                     <div class="pd-info">
@@ -81,7 +83,16 @@
                         <div class="pd-price">${FK.priceHTML(p.price, true)}</div>
                         ${p.price.kind === 'range' ? `<p class="small muted">السعر حسب المقاس: ${p.price.options.map(FK.money).join(' / ')}. اكتب المقاس اللي محتاجه في الملاحظات.</p>` : ''}
                         ${p.price.kind === 'options' ? `<fieldset class="opt-group"><legend>اختار النوع</legend>${p.price.options.map((o, i) => `<label class="opt"><input type="radio" name="opt" value="${i}" ${i === 0 ? 'checked' : ''}><span>${FK.esc(o.label)}</span><strong>${FK.money(o.price)}</strong></label>`).join('')}</fieldset>` : ''}
-                        ${p.price.unit ? `<p class="small muted">السعر لكل ${FK.esc(p.price.unit)}. اختار الكمية بعدد الأمتار التقريبي واكتب المقاس في الملاحظات، وهنحسب السعر النهائي حسب المساحة الفعلية.</p>` : ''}
+                        ${p.price.unit ? `<div class="size-calc" id="sizeCalc">
+                            <strong>احسب السعر المبدئي بالمقاس</strong>
+                            <div class="size-row">
+                                <div class="field"><label for="dimW">العرض (سم)</label><input id="dimW" type="number" inputmode="numeric" min="10" placeholder="مثال: 120"></div>
+                                <div class="field"><label for="dimH">الارتفاع (سم)</label><input id="dimH" type="number" inputmode="numeric" min="10" placeholder="مثال: 80"></div>
+                            </div>
+                            <div class="calc-out"><span id="calcArea">اكتب العرض والارتفاع</span><strong id="calcPrice">—</strong></div>
+                            <p class="small muted">${FK.money(p.price.value)} لكل ${FK.esc(p.price.unit)}، والسعر ده مبدئي للمساحة بس. تفاصيل الطباعة والتركيب والشحن بنأكدها معاك قبل التنفيذ.</p>
+                            <span class="field-error" id="dimError" style="display:none">اكتب العرض والارتفاع بالسنتيمتر (10 سم على الأقل)</span>
+                        </div>` : ''}
                         ${p.designMockup ? `<div class="notice"><i class="fa-solid fa-pen-ruler"></i><span>الصورة تصميم توضيحي من فكرة خشبة. بننفذه بنفس الفكرة والخامات المذكورة، وتقدر تغيّر الكلام والألوان والمقاس.</span></div>` : ''}
                         ${p.materials.length ? `<div><h2 class="h3" style="margin-bottom:8px">الخامات والمواصفات</h2><ul class="spec-list">${p.materials.map(m => `<li><i class="fa-solid fa-circle"></i>${FK.esc(m)}</li>`).join('')}</ul></div>` : ''}
                         <div class="field"><label for="note">ملاحظات التصميم <span class="muted">(اختياري)</span></label><textarea id="note" rows="2" placeholder="مثال: الاسم المطلوب، اللون، المقاس…"></textarea></div>
@@ -116,16 +127,31 @@
 
                 box.querySelectorAll('.pd-thumbs button').forEach(b => b.addEventListener('click', () => {
                     const m = media[+b.dataset.i];
-                    document.getElementById('pdMain').innerHTML = FK.mediaHTML(m.src, p.name, { autoplay: true, controls: true });
+                    document.getElementById('pdMain').innerHTML = FK.mediaHTML(m.src, p.name, { autoplay: true, controls: true }) + mockTag(m.src);
                     box.querySelectorAll('.pd-thumbs button').forEach(x => x.setAttribute('aria-current', x === b));
                 }));
                 if (!isQuote) {
                     let qty = 1; const qv = document.getElementById('qVal');
                     document.getElementById('qPlus').onclick = () => { qty++; qv.textContent = qty; };
                     document.getElementById('qMinus').onclick = () => { qty = Math.max(1, qty - 1); qv.textContent = qty; };
+                    // منتج سعره لكل م²: السعر المبدئي = العرض × الارتفاع ÷ 10000 × سعر المتر
+                    const dimW = document.getElementById('dimW'), dimH = document.getElementById('dimH');
+                    const readDims = () => ({ w: parseFloat(dimW && dimW.value) || 0, h: parseFloat(dimH && dimH.value) || 0 });
+                    const updateCalc = () => {
+                        const d = readDims(), ok = d.w >= 10 && d.h >= 10, area = ok ? FK.areaM2(d) : 0;
+                        document.getElementById('calcArea').textContent = ok ? `المساحة: ${area.toFixed(2)} ${p.price.unit}` : 'اكتب العرض والارتفاع';
+                        document.getElementById('calcPrice').textContent = ok ? FK.money(Math.round(p.price.value * area)) : '—';
+                        if (ok) document.getElementById('dimError').style.display = 'none';
+                    };
+                    if (dimW) { dimW.addEventListener('input', updateCalc); dimH.addEventListener('input', updateCalc); }
                     document.getElementById('addBtn').onclick = () => {
                         const opt = box.querySelector('input[name="opt"]:checked');
-                        FK.addToCart(p.id, qty, document.getElementById('note').value.trim(), opt ? opt.value : null);
+                        let dims = null;
+                        if (p.price.unit) {
+                            dims = readDims();
+                            if (!(dims.w >= 10 && dims.h >= 10)) { document.getElementById('dimError').style.display = 'block'; (dims.w >= 10 ? dimH : dimW).focus(); return; }
+                        }
+                        FK.addToCart(p.id, qty, document.getElementById('note').value.trim(), opt ? opt.value : null, dims);
                     };
                 }
                 document.getElementById('shareBtn').onclick = async () => {
@@ -134,7 +160,7 @@
                 };
 
                 // بيانات منظمة لجوجل — فقط للمنتجات اللي سعرها معروف
-                if (p.price.kind !== 'quote') {
+                if (p.price.kind !== 'quote' && !p.price.unit) {
                     const ld = { '@context': 'https://schema.org', '@type': 'Product', name: p.name, url: shareUrl, brand: { '@type': 'Brand', name: 'فكرة خشبة' },
                         offers: { '@type': 'Offer', priceCurrency: 'EGP', price: p.price.value, url: shareUrl } };
                     if (p.desc) ld.description = p.desc.slice(0, 300);

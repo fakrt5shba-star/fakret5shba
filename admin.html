@@ -487,7 +487,10 @@
                 </div>
                 <div><label style="color:var(--gold); font-size:12px;">التخفيض (%)</label><input type="number" id="prodDiscount" placeholder="نسبة الخصم (للأرقام فقط)"></div>
             </div>
-            
+            <label style="color:var(--gold); font-size:14px; margin-top:10px; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="prodFeatured" style="width:auto; margin:0;"> <i class="fa-solid fa-star"></i> ضمن «أحسن منتجاتنا» (بيظهر أول الصفحة الرئيسية وعليه علامة مميز)
+            </label>
+
             <label style="color:var(--gold); margin-top:10px; display:block;">صورة المنتج الرئيسية</label>
             <input type="file" id="prodFile" accept="image/*">
             
@@ -790,9 +793,9 @@
             document.getElementById('productModal').style.display = 'flex';
             if(id) {
                 let p = db.products.find(x => x.id == id);
-                document.getElementById('modalTitle').innerText = 'تعديل منتج'; document.getElementById('prodId').value = p.id; document.getElementById('prodName').value = p.name || ''; document.getElementById('prodLabel').value = p.label || ''; document.getElementById('prodDesc').value = p.desc || ''; document.getElementById('prodMaterial').value = p.material || ''; document.getElementById('prodPrice').value = p.price || ''; document.getElementById('prodDiscount').value = p.discount || ''; document.getElementById('prodMediaUrl').value = p.video || ''; document.getElementById('prodMediaLoop').checked = p.mediaLoop !== false;
+                document.getElementById('modalTitle').innerText = 'تعديل منتج'; document.getElementById('prodId').value = p.id; document.getElementById('prodName').value = p.name || ''; document.getElementById('prodLabel').value = p.label || ''; document.getElementById('prodDesc').value = p.desc || ''; document.getElementById('prodMaterial').value = p.material || ''; document.getElementById('prodPrice').value = p.price || ''; document.getElementById('prodDiscount').value = p.discount || ''; document.getElementById('prodMediaUrl').value = p.video || ''; document.getElementById('prodMediaLoop').checked = p.mediaLoop !== false; document.getElementById('prodFeatured').checked = !!p.featured;
             } else {
-                document.getElementById('modalTitle').innerText = 'إضافة منتج'; document.getElementById('prodId').value = ''; document.getElementById('prodName').value = ''; document.getElementById('prodLabel').value = ''; document.getElementById('prodDesc').value = ''; document.getElementById('prodMaterial').value = ''; document.getElementById('prodPrice').value = ''; document.getElementById('prodDiscount').value = ''; document.getElementById('prodMediaUrl').value = ''; document.getElementById('prodMediaLoop').checked = true;
+                document.getElementById('modalTitle').innerText = 'إضافة منتج'; document.getElementById('prodId').value = ''; document.getElementById('prodName').value = ''; document.getElementById('prodLabel').value = ''; document.getElementById('prodDesc').value = ''; document.getElementById('prodMaterial').value = ''; document.getElementById('prodPrice').value = ''; document.getElementById('prodDiscount').value = ''; document.getElementById('prodMediaUrl').value = ''; document.getElementById('prodMediaLoop').checked = true; document.getElementById('prodFeatured').checked = false;
             }
             document.getElementById('prodFile').value = ''; document.getElementById('prodExtraFiles').value = ''; document.getElementById('prodVideoFile').value = '';
         }
@@ -818,7 +821,8 @@
                     desc: document.getElementById('prodDesc').value || '', 
                     material: document.getElementById('prodMaterial').value || '', 
                     price: document.getElementById('prodPrice').value || '', 
-                    discount: parseFloat(document.getElementById('prodDiscount').value) || 0, 
+                    discount: parseFloat(document.getElementById('prodDiscount').value) || 0,
+                    featured: document.getElementById('prodFeatured').checked, 
                     video: mediaUrl, 
                     mediaLoop: mediaLoopCheck ? mediaLoopCheck.checked : true, 
                     image: '', 

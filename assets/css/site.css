@@ -363,6 +363,31 @@ main { flex: 1; }
 .prose ul { padding-inline-start: var(--s5); }
 .prose a { color: var(--gold); text-decoration: underline; }
 
+/* ---------- «أحسن منتجاتنا»: علامة مميز + قسم مضيء ---------- */
+.badge-feat { position: absolute; top: var(--s3); inset-inline-end: var(--s3); z-index: 2; display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #F1CC56, #D4AF37); color: #16161A; font-size: 0.75rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; box-shadow: 0 0 14px rgba(241, 204, 86, 0.55); }
+.p-card.is-featured { border-color: rgba(212, 175, 55, 0.45); }
+.surface-light .p-card.is-featured { border-color: rgba(212, 175, 55, 0.6); }
+.best-section { position: relative; overflow: hidden; background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(241, 204, 86, 0.22), transparent 70%), linear-gradient(180deg, #0E0E11, #0B0B0D); border-block: 1px solid rgba(212, 175, 55, 0.25); }
+.best-section::before { content: ""; position: absolute; top: -140px; left: 50%; width: 520px; height: 280px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(255, 226, 140, 0.35), transparent); filter: blur(10px); pointer-events: none; animation: fk-glow 4s ease-in-out infinite alternate; }
+@keyframes fk-glow { from { opacity: .55; } to { opacity: 1; } }
+.best-section .section-head { position: relative; }
+.best-section .eyebrow i { filter: drop-shadow(0 0 6px rgba(241, 204, 86, 0.9)); }
+.best-grid { position: relative; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: var(--s4); }
+.best-grid .p-card { border-color: rgba(212, 175, 55, 0.5); box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.12), 0 12px 34px rgba(212, 175, 55, 0.12); }
+.best-grid .p-card:hover { box-shadow: 0 0 0 1px rgba(241, 204, 86, 0.6), 0 16px 44px rgba(241, 204, 86, 0.28); }
+@media (max-width: 640px) { .best-grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 72%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: var(--s3); } .best-grid > * { scroll-snap-align: start; } }
+.cat-card.is-wide { grid-column: 1 / -1; aspect-ratio: 3 / 1; border-color: rgba(212, 175, 55, 0.5); box-shadow: 0 0 30px rgba(212, 175, 55, 0.15); }
+.cat-card.is-wide .cat-card-body h3 { font-size: 1.4rem; }
+@media (max-width: 860px) { .cat-card.is-wide { aspect-ratio: 2 / 1; } }
+
+/* ---------- صفحة المنتج: صورة توضيحية + حاسبة المقاس ---------- */
+.pd-main { position: relative; }
+.mockup-tag { position: absolute; bottom: var(--s3); inset-inline-start: var(--s3); background: rgba(22, 22, 26, 0.82); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; }
+.size-calc { display: grid; gap: var(--s3); background: var(--white); border: 1.5px solid var(--line-light); border-radius: var(--r-sm); padding: var(--s4); }
+.size-calc .size-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3); }
+.size-calc .calc-out { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); font-weight: 700; }
+.size-calc .calc-out strong { font-size: 1.3rem; color: #7A5F0E; }
+
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }

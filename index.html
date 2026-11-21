@@ -64,6 +64,20 @@
             </div>
         </section>
 
+        <section class="section-tight best-section" id="bestSection" aria-labelledby="bestTitle" hidden>
+            <div class="container">
+                <div class="section-head">
+                    <div>
+                        <span class="eyebrow"><i class="fa-solid fa-lightbulb"></i> مختارات مضيئة</span>
+                        <h2 class="h2" id="bestTitle">أحسن منتجاتنا</h2>
+                        <p class="muted" style="margin-top:8px">لايت بوكس وستاندات ونيون — أكتر حاجات بتشد العين لمحلك أو شركتك.</p>
+                    </div>
+                    <a class="btn btn-ghost" href="/products?featured=1">شوف الكل <i class="fa-solid fa-arrow-left"></i></a>
+                </div>
+                <div class="best-grid" id="bestGrid"></div>
+            </div>
+        </section>
+
         <section class="section-tight" aria-labelledby="catsTitle">
             <div class="container">
                 <div class="section-head">
@@ -172,7 +186,7 @@
             const catGrid = document.getElementById('catGrid');
             const renderCats = (counts) => {
                 catGrid.innerHTML = FK.CATEGORIES.map(c => `
-                    <a class="cat-card" href="/products?cat=${c.id}">
+                    <a class="cat-card${c.wide ? ' is-wide' : ''}" href="/products?cat=${c.id}">
                         <img src="${c.img}" alt="${FK.esc(c.name)}" loading="lazy" width="600" height="450">
                         <div class="cat-card-body"><h3>${FK.esc(c.name)}</h3><span>${counts ? (counts[c.id] || 0) + ' منتج' : 'تصفح القسم'} <i class="fa-solid fa-arrow-left"></i></span></div>
                     </a>`).join('');
@@ -187,6 +201,12 @@
                 const counts = {};
                 products.forEach(p => p.categories.forEach(c => counts[c] = (counts[c] || 0) + 1));
                 renderCats(counts);
+
+                const best = FK.featuredProducts(products);
+                if (best.length) {
+                    document.getElementById('bestGrid').innerHTML = best.map(FK.cardHTML).join('');
+                    document.getElementById('bestSection').hidden = false;
+                }
 
                 const latest = products.slice().sort((a, b) => b.created - a.created).slice(0, 8);
                 latestRail.innerHTML = latest.length ? latest.map(FK.cardHTML).join('') : '<div class="state-empty">لا توجد منتجات حاليًا.</div>';

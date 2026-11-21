@@ -41,6 +41,7 @@
                     </div>
                     <label class="sr-only" for="sort">ترتيب</label>
                     <select class="input" id="sort" style="width:auto; min-width:170px">
+                        <option value="featured">أحسن منتجاتنا أولًا</option>
                         <option value="new">الأحدث</option>
                         <option value="price-asc">السعر: من الأقل</option>
                         <option value="price-desc">السعر: من الأعلى</option>
@@ -49,6 +50,7 @@
                 </div>
                 <div class="chips" id="cats" role="group" aria-label="التصنيفات"></div>
                 <div class="toolbar-row small">
+                    <label style="display:flex; align-items:center; gap:8px; font-weight:600"><input type="checkbox" id="featuredOnly"> <i class="fa-solid fa-star" style="color:#9A7B16"></i> أحسن منتجاتنا بس</label>
                     <label style="display:flex; align-items:center; gap:8px; font-weight:600"><input type="checkbox" id="offersOnly"> العروض فقط</label>
                     <span style="display:flex; align-items:center; gap:8px; margin-inline-start:auto">
                         <label for="minP">السعر من</label><input class="input" id="minP" type="number" inputmode="numeric" min="0" placeholder="0" style="width:100px; min-height:40px; padding:6px 10px">
@@ -69,10 +71,10 @@
             const $ = id => document.getElementById(id);
             const grid = $('grid');
             const state = {
-                cat: FK.qs('cat') || 'all', q: FK.qs('q') || '', sort: 'new',
-                offers: FK.qs('offers') === '1', min: '', max: ''
+                cat: FK.qs('cat') || 'all', q: FK.qs('q') || '', sort: 'featured',
+                offers: FK.qs('offers') === '1', featured: FK.qs('featured') === '1', min: '', max: ''
             };
-            $('q').value = state.q; $('offersOnly').checked = state.offers;
+            $('q').value = state.q; $('offersOnly').checked = state.offers; $('featuredOnly').checked = state.featured;
 
             const chips = [{ id: 'all', name: 'الكل' }, ...FK.CATEGORIES];
             $('cats').innerHTML = chips.map(c => `<button type="button" class="chip" data-cat="${c.id}" aria-pressed="false">${FK.esc(c.name)}</button>`).join('');
@@ -84,6 +86,7 @@
                 if (state.cat !== 'all') u.set('cat', state.cat);
                 if (state.q) u.set('q', state.q);
                 if (state.offers) u.set('offers', '1');
+                if (state.featured) u.set('featured', '1');
                 history.replaceState(null, '', location.pathname + (u.toString() ? '?' + u : '') + location.hash);
             }
 
@@ -100,10 +103,12 @@
                     (state.cat === 'all' || p.categories.includes(state.cat)) &&
                     (!q || (p.name + ' ' + p.labels.join(' ') + ' ' + p.materials.join(' ')).toLowerCase().includes(q)) &&
                     (!state.offers || (p.price.kind === 'fixed' && p.price.discount > 0)) &&
+                    (!state.featured || p.featured) &&
                     (isNaN(min) || (p.price.kind !== 'quote' && p.price.value >= min)) &&
                     (isNaN(max) || (p.price.kind !== 'quote' && p.price.value <= max))
                 );
                 const val = p => p.price.kind === 'quote' ? Infinity : p.price.value;
+                if (state.sort === 'featured') list.sort((a, b) => (b.featured - a.featured) || (a.featuredRank - b.featuredRank) || (b.created - a.created));
                 if (state.sort === 'new') list.sort((a, b) => b.created - a.created);
                 if (state.sort === 'price-asc') list.sort((a, b) => val(a) - val(b));
                 if (state.sort === 'price-desc') list.sort((a, b) => (val(b) === Infinity ? -1 : val(b)) - (val(a) === Infinity ? -1 : val(a)));
@@ -119,6 +124,7 @@
             let t; $('q').addEventListener('input', e => { clearTimeout(t); t = setTimeout(() => { state.q = e.target.value; syncUrl(); render(); }, 200); });
             $('sort').addEventListener('change', e => { state.sort = e.target.value; render(); });
             $('offersOnly').addEventListener('change', e => { state.offers = e.target.checked; syncUrl(); render(); });
+            $('featuredOnly').addEventListener('change', e => { state.featured = e.target.checked; syncUrl(); render(); });
             $('minP').addEventListener('input', e => { state.min = e.target.value; render(); });
             $('maxP').addEventListener('input', e => { state.max = e.target.value; render(); });
             if (location.hash === '#search') $('q').focus();
