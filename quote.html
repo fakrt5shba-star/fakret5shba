@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اطلب عرض سعر | فكرة خشبة</title>
+    <meta name="description" content="ابعت تفاصيل اللوحة أو المشروع اللي محتاجه: النوع والمقاس والكمية، وفكرة خشبة هترجعلك بعرض سعر.">
+    <link rel="canonical" href="https://fakret5shba.com/quote">
+    <meta name="theme-color" content="#0B0B0D">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230B0B0D'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='%23D4AF37' font-family='Arial' font-weight='bold'>ف</text></svg>">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js" defer></script>
+    <script src="/assets/js/config.js" defer></script>
+    <script src="/assets/js/store.js" defer></script>
+</head>
+<body class="surface-light">
+    <a class="skip-link" href="#main">تخطي للمحتوى</a>
+    <header id="site-header"></header>
+
+    <main id="main" class="section-tight">
+        <div class="container" style="max-width:820px">
+            <div style="margin-bottom:24px">
+                <span class="eyebrow" style="color:#9A7B16">عرض سعر</span>
+                <h1 class="h2">قولنا محتاج إيه… ونرجعلك بالسعر</h1>
+                <p class="lead" style="margin-top:8px">املا التفاصيل اللي تعرفها، ومش لازم تكون متأكد من المقاسات بالظبط.</p>
+            </div>
+
+            <div class="form-card" id="quoteCard">
+                <form id="quoteForm" class="form-grid" novalidate>
+                    <div class="field span-2"><label for="qType">نوع المنتج أو الخدمة</label>
+                        <select id="qType" required></select>
+                        <span class="field-error">اختار النوع</span>
+                    </div>
+                    <div class="field"><label for="qW">العرض التقريبي (سم) <span class="muted">اختياري</span></label><input id="qW" type="number" inputmode="numeric" min="1" placeholder="مثال: 60"></div>
+                    <div class="field"><label for="qH">الارتفاع التقريبي (سم) <span class="muted">اختياري</span></label><input id="qH" type="number" inputmode="numeric" min="1" placeholder="مثال: 40"></div>
+                    <div class="field"><label for="qQty">الكمية</label><input id="qQty" type="number" inputmode="numeric" min="1" value="1" required><span class="field-error">الكمية لازم تكون 1 أو أكتر</span></div>
+                    <div class="field"><label for="qLogo">عندك لوجو أو صورة للتصميم؟</label>
+                        <select id="qLogo"><option value="no">لا</option><option value="yes">أيوه، هبعتها على واتساب</option></select>
+                    </div>
+                    <div class="field span-2"><label for="qDetails">تفاصيل الطلب</label><textarea id="qDetails" rows="4" placeholder="اكتب الكلام المطلوب على اللوحة، الألوان، الإضاءة، مكان التركيب…" required></textarea><span class="field-error">اكتب تفاصيل الطلب (10 حروف على الأقل)</span></div>
+
+                    <div class="span-2" style="border-top:1px solid var(--line-light); padding-top:16px"><h2 class="h3">بيانات التواصل</h2></div>
+                    <div class="field"><label for="qName">الاسم</label><input id="qName" autocomplete="name" required><span class="field-error">اكتب اسمك</span></div>
+                    <div class="field"><label for="qPhone">رقم الموبايل</label><input id="qPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="01xxxxxxxxx" dir="ltr" style="text-align:right" required><span class="field-error">اكتب رقم موبايل مصري صحيح</span></div>
+                    <div class="field"><label for="qGov">المحافظة</label><select id="qGov" required></select><span class="field-error">اختار المحافظة</span></div>
+                    <div class="field"><label for="qCompany">اسم الشركة أو المحل <span class="muted">اختياري</span></label><input id="qCompany" autocomplete="organization"></div>
+
+                    <div class="span-2 notice"><i class="fa-solid fa-circle-info"></i><span>رفع الملفات من الموقع مش متاح حاليًا. لو عندك لوجو أو صورة، هيظهرلك زرار تبعتها بيه على واتساب بعد ما الطلب يتسجل.</span></div>
+                    <div class="span-2" id="qMsg" aria-live="assertive"></div>
+                    <button class="btn btn-gold btn-block span-2" type="submit" id="qSubmit">إرسال طلب عرض السعر</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            FK.renderChrome('quote');
+            const $ = id => document.getElementById(id);
+            const SERVICES = ['يفط وواجهات محلات', 'حروف مجسمة', 'لايت بوكس', 'لوحات إرشادية', ...FK.CATEGORIES.map(c => c.name), 'حاجة تانية'];
+            const pre = FK.qs('type') === 'business' ? 'لوحات الشركات والدعاية' : '';
+            const buildTypes = (productName) => {
+                const opts = productName ? [`منتج: ${productName}`, ...SERVICES] : SERVICES;
+                $('qType').innerHTML = '<option value="">اختار…</option>' + opts.map(o => `<option ${o === pre || (productName && o === 'منتج: ' + productName) ? 'selected' : ''}>${FK.esc(o)}</option>`).join('');
+            };
+            buildTypes();
+            $('qGov').innerHTML = FK.govOptions();
+
+            const productId = FK.qs('product');
+            if (productId) FK.loadStore().then(() => { const p = FK.productById(productId); if (p) buildTypes(p.name); }).catch(() => { });
+
+            function validate() {
+                const checks = [
+                    ['qType', !!$('qType').value],
+                    ['qQty', parseInt($('qQty').value) >= 1],
+                    ['qDetails', $('qDetails').value.trim().length >= 10],
+                    ['qName', !!$('qName').value.trim()],
+                    ['qPhone', FK.isValidPhone($('qPhone').value)],
+                    ['qGov', !!$('qGov').value]
+                ];
+                let first = null;
+                checks.forEach(([id, ok]) => { $(id).closest('.field').classList.toggle('has-error', !ok); if (!ok && !first) first = id; });
+                if (first) $(first).focus();
+                return !first;
+            }
+
+            $('quoteForm').addEventListener('submit', e => {
+                e.preventDefault();
+                if (!validate()) return;
+                const btn = $('qSubmit'); btn.classList.add('is-loading'); $('qMsg').innerHTML = '';
+                const ref = FK.makeRef();
+                const size = ($('qW').value || $('qH').value) ? `${$('qW').value || '?'} × ${$('qH').value || '?'} سم` : 'غير محدد';
+                const type = $('qType').value, hasLogo = $('qLogo').value === 'yes';
+                const details = [
+                    `المقاس: ${size}`, `الكمية: ${$('qQty').value}`,
+                    $('qCompany').value.trim() ? `الشركة/المحل: ${$('qCompany').value.trim()}` : '',
+                    hasLogo ? 'العميل عنده لوجو/صورة هيبعتها واتساب' : '',
+                    `التفاصيل: ${$('qDetails').value.trim()}`
+                ].filter(Boolean).join('\n');
+                // بيتسجل ضمن الطلبات عشان يظهر في لوحة الإدارة الحالية بعلامة "عرض سعر"
+                const data = {
+                    orderType: 'quote', orderRef: ref,
+                    productName: `طلب عرض سعر — ${type}`,
+                    customerName: $('qName').value.trim(), customerPhone: FK.normalizePhone($('qPhone').value),
+                    governorate: $('qGov').value, address: $('qGov').value,
+                    note: details, totalPrice: 0, quantity: parseInt($('qQty').value) || 1,
+                    productId: productId || null,
+                    timestamp: Date.now(), orderState: 'active', source: 'web-v2-quote'
+                };
+                FK.db().ref('orders').push(data).then(() => {
+                    FK.track('generate_lead', { lead_type: 'quote' });
+                    $('quoteCard').innerHTML = `
+                        <div class="success-box">
+                            <div class="check"><i class="fa-solid fa-check"></i></div>
+                            <h2 class="h3">طلب عرض السعر اتسجل</h2>
+                            <p class="muted">رقم الطلب</p>
+                            <div class="ref">${ref}</div>
+                            <p class="muted">هنراجع التفاصيل ونكلمك على ${FK.esc(data.customerPhone)} بعرض السعر.</p>
+                            <div style="display:grid; gap:12px; max-width:380px; margin:8px auto 0">
+                                ${hasLogo ? `<a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="${FK.waLink(`السلام عليكم، ده اللوجو/الصورة الخاصة بطلب عرض السعر رقم ${ref}`)}"><i class="fa-brands fa-whatsapp"></i> ابعت اللوجو على واتساب</a>` : ''}
+                                <a class="btn btn-outline btn-block" href="/products">تصفح المنتجات</a>
+                            </div>
+                        </div>`;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }).catch(() => {
+                    btn.classList.remove('is-loading');
+                    $('qMsg').innerHTML = `<div class="notice error"><i class="fa-solid fa-triangle-exclamation"></i><span>الطلب ماتسجلش بسبب مشكلة في الاتصال. جرّب تاني، أو <a style="text-decoration:underline" target="_blank" rel="noopener" href="${FK.waLink('السلام عليكم، عايز عرض سعر')}">ابعتلنا على واتساب</a>.</span></div>`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منتج | فكرة خشبة</title>
+    <meta name="description" content="تفاصيل المنتج من فكرة خشبة: الخامات والسعر والصور، واطلبه أونلاين أو اطلب عرض سعر.">
+    <meta name="theme-color" content="#0B0B0D">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230B0B0D'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='%23D4AF37' font-family='Arial' font-weight='bold'>ف</text></svg>">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js" defer></script>
+    <script src="/assets/js/config.js" defer></script>
+    <script src="/assets/js/store.js" defer></script>
+</head>
+<body class="surface-light">
+    <a class="skip-link" href="#main">تخطي للمحتوى</a>
+    <header id="site-header"></header>
+
+    <main id="main">
+        <div class="container">
+            <nav class="breadcrumbs" aria-label="مسار التصفح" id="crumbs"><a href="/">الرئيسية</a><span>›</span><a href="/products">المنتجات</a></nav>
+            <div id="product">
+                <div class="pd-grid">
+                    <div class="skeleton" style="aspect-ratio:4/3"></div>
+                    <div style="display:grid; gap:16px"><div class="skeleton" style="height:40px"></div><div class="skeleton" style="height:56px; width:60%"></div><div class="skeleton" style="height:160px"></div></div>
+                </div>
+            </div>
+
+            <section class="section-tight" id="relatedSection" hidden aria-labelledby="relTitle">
+                <h2 class="h2" id="relTitle" style="margin-bottom:24px">منتجات مشابهة</h2>
+                <div class="rail" id="related"></div>
+            </section>
+        </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            FK.renderChrome('products');
+            const id = FK.qs('id');
+            const box = document.getElementById('product');
+
+            FK.loadStore().then(() => {
+                const p = FK.productById(id);
+                if (!p) {
+                    box.innerHTML = `<div class="state-empty"><i class="fa-solid fa-box-open"></i>المنتج ده مش موجود أو اتشال.<br><a class="btn btn-dark btn-sm" style="margin-top:16px" href="/products">تصفح المنتجات</a></div>`;
+                    return;
+                }
+                render(p);
+            }).catch(() => { box.innerHTML = FK.errorHTML('حصلت مشكلة في تحميل المنتج.'); });
+
+            function render(p) {
+                const cat = p.categories[0] ? FK.categoryById(p.categories[0]) : null;
+                document.title = `${p.name} | فكرة خشبة`;
+                const metaDesc = document.querySelector('meta[name=description]');
+                metaDesc.content = `${p.name} من فكرة خشبة${p.materials.length ? ' — ' + p.materials.join('، ') : ''}. ${p.price.kind === 'quote' ? 'اطلب عرض سعر.' : p.price.text}`;
+                if (cat) document.getElementById('crumbs').insertAdjacentHTML('beforeend', `<span>›</span><a href="/products?cat=${cat.id}">${FK.esc(cat.name)}</a>`);
+                document.getElementById('crumbs').insertAdjacentHTML('beforeend', `<span>›</span><span aria-current="page">${FK.esc(p.name)}</span>`);
+
+                const media = [...(p.video ? [{ src: p.video, video: true }] : []), ...p.images.map(src => ({ src }))];
+                if (!media.length) media.push({ src: '' });
+                const isQuote = p.price.kind === 'quote';
+                const shareUrl = `${FK_CONFIG.siteUrl}/product?id=${encodeURIComponent(p.id)}`;
+                const waText = `السلام عليكم، عايز أستفسر عن: ${p.name}\n${shareUrl}`;
+
+                box.innerHTML = `
+                <div class="pd-grid">
+                    <div class="pd-gallery">
+                        <div class="pd-main" id="pdMain">${FK.mediaHTML(media[0].src, p.name, { eager: true, autoplay: true, controls: true, loop: p.mediaLoop !== false })}</div>
+                        ${media.length > 1 ? `<div class="pd-thumbs" role="group" aria-label="صور المنتج">${media.map((m, i) => `<button type="button" data-i="${i}" aria-current="${i === 0}" aria-label="صورة ${i + 1}">${m.video ? '<i class="fa-solid fa-play" style="font-size:1.2rem"></i>' : `<img src="${FK.esc(m.src)}" alt="" loading="lazy">`}</button>`).join('')}</div>` : ''}
+                    </div>
+                    <div class="pd-info">
+                        ${cat ? `<a class="p-cat" href="/products?cat=${cat.id}">${FK.esc(cat.name)}</a>` : ''}
+                        <h1 class="h2">${FK.esc(p.name)}</h1>
+                        <div class="pd-price">${FK.priceHTML(p.price, true)}</div>
+                        ${p.price.kind === 'range' ? `<p class="small muted">السعر حسب المقاس: ${p.price.options.map(FK.money).join(' / ')}. اكتب المقاس اللي محتاجه في الملاحظات.</p>` : ''}
+                        ${p.materials.length ? `<div><h2 class="h3" style="margin-bottom:8px">الخامات والمواصفات</h2><ul class="spec-list">${p.materials.map(m => `<li><i class="fa-solid fa-circle"></i>${FK.esc(m)}</li>`).join('')}</ul></div>` : ''}
+                        <div class="field"><label for="note">ملاحظات التصميم <span class="muted">(اختياري)</span></label><textarea id="note" rows="2" placeholder="مثال: الاسم المطلوب، اللون، المقاس…"></textarea></div>
+                        <div class="sticky-buy" style="display:grid; gap:12px">
+                            ${isQuote ? `
+                                <a class="btn btn-gold btn-block" href="/quote?product=${encodeURIComponent(p.id)}">اطلب عرض سعر</a>
+                                <a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="${FK.waLink(waText)}"><i class="fa-brands fa-whatsapp"></i> اسأل على واتساب</a>
+                            ` : `
+                                <div class="pd-actions">
+                                    <div class="qty" role="group" aria-label="الكمية"><button type="button" id="qPlus" aria-label="زيادة">+</button><span id="qVal">1</span><button type="button" id="qMinus" aria-label="تقليل">−</button></div>
+                                    <button class="btn btn-gold btn-block" type="button" id="addBtn"><i class="fa-solid fa-bag-shopping"></i> أضف للسلة</button>
+                                </div>
+                                <a class="btn btn-outline btn-block" target="_blank" rel="noopener" href="${FK.waLink(waText)}"><i class="fa-brands fa-whatsapp"></i> عندك سؤال؟ كلمنا واتساب</a>
+                            `}
+                        </div>
+                        <div class="trust-row">
+                            <div><i class="fa-solid fa-pen-ruler"></i>تنفيذ حسب الطلب</div>
+                            <div><i class="fa-solid fa-phone"></i>تأكيد قبل التنفيذ</div>
+                            <div><i class="fa-solid fa-hand-holding-dollar"></i>الدفع بعد التأكيد</div>
+                        </div>
+                        <button class="btn btn-ghost btn-sm" type="button" id="shareBtn" style="justify-self:start"><i class="fa-solid fa-share-nodes"></i> مشاركة المنتج</button>
+                        ${p.desc ? `<div><h2 class="h3" style="margin-bottom:8px">الوصف</h2><p class="pd-desc">${FK.esc(p.desc)}</p></div>` : ''}
+                    </div>
+                </div>`;
+                document.body.classList.add('has-sticky-buy');
+
+                box.querySelectorAll('.pd-thumbs button').forEach(b => b.addEventListener('click', () => {
+                    const m = media[+b.dataset.i];
+                    document.getElementById('pdMain').innerHTML = FK.mediaHTML(m.src, p.name, { autoplay: true, controls: true });
+                    box.querySelectorAll('.pd-thumbs button').forEach(x => x.setAttribute('aria-current', x === b));
+                }));
+                if (!isQuote) {
+                    let qty = 1; const qv = document.getElementById('qVal');
+                    document.getElementById('qPlus').onclick = () => { qty++; qv.textContent = qty; };
+                    document.getElementById('qMinus').onclick = () => { qty = Math.max(1, qty - 1); qv.textContent = qty; };
+                    document.getElementById('addBtn').onclick = () => FK.addToCart(p.id, qty, document.getElementById('note').value.trim());
+                }
+                document.getElementById('shareBtn').onclick = async () => {
+                    try { if (navigator.share) { await navigator.share({ title: p.name, url: shareUrl }); return; } } catch (e) { return; }
+                    try { await navigator.clipboard.writeText(shareUrl); FK.toast('اتنسخ رابط المنتج'); } catch (e) { prompt('انسخ الرابط:', shareUrl); }
+                };
+
+                // بيانات منظمة لجوجل — فقط للمنتجات اللي سعرها معروف
+                if (p.price.kind !== 'quote') {
+                    const ld = { '@context': 'https://schema.org', '@type': 'Product', name: p.name, url: shareUrl, brand: { '@type': 'Brand', name: 'فكرة خشبة' },
+                        offers: { '@type': 'Offer', priceCurrency: 'EGP', price: p.price.value, url: shareUrl } };
+                    if (p.desc) ld.description = p.desc.slice(0, 300);
+                    const s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(ld); document.head.appendChild(s);
+                }
+                FK.track('view_item', { item_id: p.id });
+
+                const related = FK.store.products.filter(x => x.id !== p.id && x.categories.some(c => p.categories.includes(c))).slice(0, 8);
+                if (related.length) { document.getElementById('related').innerHTML = related.map(FK.cardHTML).join(''); document.getElementById('relatedSection').hidden = false; }
+            }
+        });
+    </script>
+</body>
+</html>

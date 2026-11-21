@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حلول الشركات والمحلات | فكرة خشبة</title>
+    <meta name="description" content="يفط وواجهات محلات، لوحات إرشادية، لايت بوكس، لوحات أكريليك ونيون بلوجو شركتك، وطلبات الكميات للمكاتب والمطاعم والكافيهات. اطلب عرض سعر لمشروعك.">
+    <link rel="canonical" href="https://fakret5shba.com/business">
+    <meta name="theme-color" content="#0B0B0D">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230B0B0D'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='%23D4AF37' font-family='Arial' font-weight='bold'>ف</text></svg>">
+    <meta property="og:title" content="حلول الشركات والمحلات | فكرة خشبة">
+    <meta property="og:description" content="يفط وواجهات ولوحات إرشادية ولايت بوكس وكميات للشركات.">
+    <meta property="og:image" content="https://fakret5shba.com/assets/img/biz-wayfinding.jpeg">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js" defer></script>
+    <script src="/assets/js/config.js" defer></script>
+    <script src="/assets/js/store.js" defer></script>
+</head>
+<body class="surface-dark">
+    <a class="skip-link" href="#main">تخطي للمحتوى</a>
+    <header id="site-header"></header>
+
+    <main id="main">
+        <section class="container biz-hero">
+            <div>
+                <span class="eyebrow"><i class="fa-solid fa-building"></i> للشركات والمحلات والمشروعات</span>
+                <h1 class="display" style="margin-top:12px">هوية مكانك <span class="gold">تبان من أول نظرة</span></h1>
+                <p class="lead" style="margin-block:16px 32px">من لوحة الاستقبال لحد واجهة المحل: بنصمم وننفذ لوحات أكريليك ونيون ولايت بوكس ولوحات إرشادية بلوجو شركتك، للقطعة الواحدة أو للكميات.</p>
+                <div class="hero-actions">
+                    <a class="btn btn-gold" href="/quote?type=business">اطلب عرض سعر لمشروعك</a>
+                    <a class="btn btn-outline" href="/products?cat=business">شوف لوحات الشركات</a>
+                </div>
+            </div>
+            <img src="/assets/img/biz-wayfinding.jpeg" alt="لوحة إرشادية مضيئة بلوجو من أكريليك" width="600" height="451" fetchpriority="high">
+        </section>
+
+        <section class="section-tight" aria-labelledby="servicesTitle">
+            <div class="container">
+                <div class="section-head"><div><span class="eyebrow">خدماتنا</span><h2 class="h2" id="servicesTitle">إيه اللي نقدر ننفذه لشركتك</h2></div></div>
+                <div class="service-grid">
+                    <div class="service"><i class="fa-solid fa-store"></i><h3 class="h3">يفط وواجهات المحلات</h3><p>واجهات ويفط خارجية تعرّف الناس بمكانك من بعيد.</p></div>
+                    <div class="service"><i class="fa-solid fa-lightbulb"></i><h3 class="h3">لايت بوكس</h3><p>لوحات مضيئة بطباعة باك لايت للواجهات والديكور الداخلي.</p></div>
+                    <div class="service"><i class="fa-solid fa-signs-post"></i><h3 class="h3">لوحات إرشادية</h3><p>لوحات أكريليك مضيئة بلوجو الشركة للأقسام والمكاتب والاستقبال.</p></div>
+                    <div class="service"><i class="fa-solid fa-font"></i><h3 class="h3">لوحات أكريليك وحروف</h3><p>لوحات بيان المكاتب، لوحات الأبواب والغرف، وأسماء الشركات.</p></div>
+                    <div class="service"><i class="fa-solid fa-qrcode"></i><h3 class="h3">استاندات QR و NFC</h3><p>استاندات للكاشير والطاولات توصّل العميل لصفحاتك وتقييماتك بلمسة.</p></div>
+                    <div class="service"><i class="fa-solid fa-boxes-stacked"></i><h3 class="h3">طلبات الكميات</h3><p>أطقم مكاتب ولوحات موحدة لفروعك أو لمشروع كامل.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-tight" aria-labelledby="bizProductsTitle">
+            <div class="container">
+                <div class="section-head">
+                    <div><span class="eyebrow">من منتجاتنا</span><h2 class="h2" id="bizProductsTitle">لوحات الشركات والمكاتب</h2></div>
+                    <a class="btn btn-ghost" href="/products?cat=business">كل المنتجات <i class="fa-solid fa-arrow-left"></i></a>
+                </div>
+                <div class="rail" id="bizRail"></div>
+            </div>
+        </section>
+
+        <section class="section" aria-labelledby="howTitle">
+            <div class="container">
+                <div class="section-head"><div><span class="eyebrow">طريقة الشغل</span><h2 class="h2" id="howTitle">إزاي بنشتغل على مشروعك</h2></div></div>
+                <div class="steps">
+                    <div class="step"><h3 class="h3">ابعت المتطلبات</h3><p>نوع اللوحة، المقاسات التقريبية، الكمية، واللوجو أو الفكرة.</p></div>
+                    <div class="step"><h3 class="h3">عرض سعر</h3><p>بنراجع الطلب ونرجعلك بالخامات المناسبة والسعر.</p></div>
+                    <div class="step"><h3 class="h3">تصميم وموافقة</h3><p>بنجهز التصميم ونعدّل لحد ما توافق عليه.</p></div>
+                    <div class="step"><h3 class="h3">تنفيذ وتسليم</h3><p>بنبدأ التنفيذ بعد موافقتك ونتابع معاك لحد التسليم.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-tight">
+            <div class="container">
+                <div class="cta-band">
+                    <div><h2 class="h2">جاهز تبدأ؟</h2><p class="lead">ابعتلنا تفاصيل مشروعك في دقيقة، أو كلمنا على واتساب مباشرة.</p></div>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap">
+                        <a class="btn btn-dark" href="/quote?type=business">اطلب عرض سعر</a>
+                        <a class="btn btn-outline" style="border-color:#0B0B0D; color:#0B0B0D" id="bizWa" target="_blank" rel="noopener" href="#"><i class="fa-brands fa-whatsapp"></i> واتساب</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="site-footer"></footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            FK.renderChrome('business');
+            document.getElementById('bizWa').href = FK.waLink('السلام عليكم، عندي مشروع لشركة/محل وعايز عرض سعر');
+            const rail = document.getElementById('bizRail');
+            rail.innerHTML = FK.skeletonCards(4);
+            FK.loadStore().then(store => {
+                const list = store.products.filter(p => p.categories.includes('business') || p.categories.includes('office') || p.categories.includes('qr'));
+                rail.innerHTML = list.length ? list.map(FK.cardHTML).join('') : '<div class="state-empty">قريبًا.</div>';
+            }).catch(() => { rail.innerHTML = FK.errorHTML(); });
+        });
+    </script>
+</body>
+</html>

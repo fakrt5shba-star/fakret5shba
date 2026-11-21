@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المنتجات | فكرة خشبة — لوحات نيون وأكريليك ولايت بوكس</title>
+    <meta name="description" content="تصفح منتجات فكرة خشبة: لوحات نيون، لوحات شركات ودعاية، استاندات QR و NFC، لوحات فلل ومنازل، منتجات مكاتب وديكورات خشب وأكريليك.">
+    <link rel="canonical" href="https://fakret5shba.com/products">
+    <meta name="theme-color" content="#0B0B0D">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230B0B0D'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='%23D4AF37' font-family='Arial' font-weight='bold'>ف</text></svg>">
+    <meta property="og:title" content="منتجات فكرة خشبة">
+    <meta property="og:description" content="لوحات نيون وأكريليك ولايت بوكس وديكورات حسب الطلب.">
+    <meta property="og:image" content="https://fakret5shba.com/assets/img/cat-neon.jpeg">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js" defer></script>
+    <script src="/assets/js/config.js" defer></script>
+    <script src="/assets/js/store.js" defer></script>
+</head>
+<body class="surface-light">
+    <a class="skip-link" href="#main">تخطي للمحتوى</a>
+    <header id="site-header"></header>
+
+    <main id="main" class="section-tight">
+        <div class="container">
+            <div class="section-head" style="margin-bottom:24px">
+                <div><span class="eyebrow" style="color:#9A7B16">المتجر</span><h1 class="h2" id="pageTitle">كل المنتجات</h1></div>
+                <span class="result-count" id="resultCount" aria-live="polite"></span>
+            </div>
+
+            <div class="toolbar">
+                <div class="toolbar-row">
+                    <div class="search-box" id="search">
+                        <label class="sr-only" for="q">ابحث عن منتج</label>
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input class="input" id="q" type="search" placeholder="ابحث: نيون، اسم، QR، فيلا…" autocomplete="off">
+                    </div>
+                    <label class="sr-only" for="sort">ترتيب</label>
+                    <select class="input" id="sort" style="width:auto; min-width:170px">
+                        <option value="new">الأحدث</option>
+                        <option value="price-asc">السعر: من الأقل</option>
+                        <option value="price-desc">السعر: من الأعلى</option>
+                        <option value="name">الاسم</option>
+                    </select>
+                </div>
+                <div class="chips" id="cats" role="group" aria-label="التصنيفات"></div>
+                <div class="toolbar-row small">
+                    <label style="display:flex; align-items:center; gap:8px; font-weight:600"><input type="checkbox" id="offersOnly"> العروض فقط</label>
+                    <span style="display:flex; align-items:center; gap:8px; margin-inline-start:auto">
+                        <label for="minP">السعر من</label><input class="input" id="minP" type="number" inputmode="numeric" min="0" placeholder="0" style="width:100px; min-height:40px; padding:6px 10px">
+                        <label for="maxP">إلى</label><input class="input" id="maxP" type="number" inputmode="numeric" min="0" placeholder="∞" style="width:100px; min-height:40px; padding:6px 10px">
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-grid" id="grid" aria-live="polite"></div>
+        </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            FK.renderChrome('products');
+            const $ = id => document.getElementById(id);
+            const grid = $('grid');
+            const state = {
+                cat: FK.qs('cat') || 'all', q: FK.qs('q') || '', sort: 'new',
+                offers: FK.qs('offers') === '1', min: '', max: ''
+            };
+            $('q').value = state.q; $('offersOnly').checked = state.offers;
+
+            const chips = [{ id: 'all', name: 'الكل' }, ...FK.CATEGORIES];
+            $('cats').innerHTML = chips.map(c => `<button type="button" class="chip" data-cat="${c.id}" aria-pressed="false">${FK.esc(c.name)}</button>`).join('');
+
+            grid.innerHTML = FK.skeletonCards(8);
+
+            function syncUrl() {
+                const u = new URLSearchParams();
+                if (state.cat !== 'all') u.set('cat', state.cat);
+                if (state.q) u.set('q', state.q);
+                if (state.offers) u.set('offers', '1');
+                history.replaceState(null, '', location.pathname + (u.toString() ? '?' + u : '') + location.hash);
+            }
+
+            function render() {
+                if (!FK.store) return;
+                document.querySelectorAll('.chip').forEach(b => { const on = b.dataset.cat === state.cat; b.classList.toggle('is-active', on); b.setAttribute('aria-pressed', on); });
+                const cat = FK.categoryById(state.cat);
+                $('pageTitle').textContent = cat ? cat.name : 'كل المنتجات';
+                document.title = (cat ? cat.name : 'المنتجات') + ' | فكرة خشبة';
+
+                const q = state.q.trim().toLowerCase();
+                const min = parseFloat(state.min), max = parseFloat(state.max);
+                let list = FK.store.products.filter(p =>
+                    (state.cat === 'all' || p.categories.includes(state.cat)) &&
+                    (!q || (p.name + ' ' + p.labels.join(' ') + ' ' + p.materials.join(' ')).toLowerCase().includes(q)) &&
+                    (!state.offers || (p.price.kind === 'fixed' && p.price.discount > 0)) &&
+                    (isNaN(min) || (p.price.kind !== 'quote' && p.price.value >= min)) &&
+                    (isNaN(max) || (p.price.kind !== 'quote' && p.price.value <= max))
+                );
+                const val = p => p.price.kind === 'quote' ? Infinity : p.price.value;
+                if (state.sort === 'new') list.sort((a, b) => b.created - a.created);
+                if (state.sort === 'price-asc') list.sort((a, b) => val(a) - val(b));
+                if (state.sort === 'price-desc') list.sort((a, b) => (val(b) === Infinity ? -1 : val(b)) - (val(a) === Infinity ? -1 : val(a)));
+                if (state.sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+
+                $('resultCount').textContent = list.length + ' منتج';
+                grid.innerHTML = list.length ? list.map(FK.cardHTML).join('')
+                    : `<div class="state-empty"><i class="fa-solid fa-magnifying-glass"></i>مفيش منتجات مطابقة.<br>جرّب كلمة تانية، أو <a href="/quote" style="text-decoration:underline">اطلب عرض سعر لفكرتك</a>.</div>`;
+                if (q) FK.track('search', { search_term: q });
+            }
+
+            $('cats').addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; state.cat = b.dataset.cat; syncUrl(); render(); });
+            let t; $('q').addEventListener('input', e => { clearTimeout(t); t = setTimeout(() => { state.q = e.target.value; syncUrl(); render(); }, 200); });
+            $('sort').addEventListener('change', e => { state.sort = e.target.value; render(); });
+            $('offersOnly').addEventListener('change', e => { state.offers = e.target.checked; syncUrl(); render(); });
+            $('minP').addEventListener('input', e => { state.min = e.target.value; render(); });
+            $('maxP').addEventListener('input', e => { state.max = e.target.value; render(); });
+            if (location.hash === '#search') $('q').focus();
+
+            FK.loadStore().then(render).catch(() => { grid.innerHTML = FK.errorHTML(); });
+        });
+    </script>
+</body>
+</html>

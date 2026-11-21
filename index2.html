@@ -2,39 +2,38 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>صمّم لوحة Open / Closed | فكرة خشبة</title>
-    <meta name="description" content="صمّم لوحة مفتوح / مغلق للمحل بنفسك: اختار الكلمات والألوان ووضع النيون وشوف الشكل قبل ما تطلب.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صمّم لوحة Open / Closed | استوديو فكرة خشبة</title>
+    <meta name="description" content="صمّم لوحة مفتوح / مغلق للمحل بنفسك: اختار الكلمات والألوان ووضع النيون، وشوف المعاينة 3D قبل ما تطلب.">
     <link rel="canonical" href="https://fakret5shba.com/index2">
+    <meta name="theme-color" content="#0B0B0D">
     <meta property="og:title" content="صمّم لوحة Open / Closed لمحلك | فكرة خشبة">
     <meta property="og:description" content="اختار الكلمات والألوان ووضع النيون وشوف لوحتك قبل ما تطلب.">
     <meta property="og:url" content="https://fakret5shba.com/index2">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23050505'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='%23d4af37' font-family='Arial' font-weight='bold'>ف</text></svg>">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230B0B0D'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='%23D4AF37' font-family='Arial' font-weight='bold'>ف</text></svg>">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="/assets/css/site.css">
     <style>
         @font-face { font-family: 'BeIN'; src: local('BeIN Normal'), local('BeIN Arabic'), local('bein'); }
-        :root { 
-            --primary: #2c3e50; --secondary: #e74c3c; --bg: #f5f6fa; 
-            --base-bg: #f0f0f0; --base-text: #333333; 
-            --door-bg: #ffffff; --door-text: #000000; --mount-bg: #e0e0e0; 
-        }
-        body { font-family: 'BeIN', 'Cairo', sans-serif; background-color: var(--bg); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        .app-container { width: 100%; max-width: 600px; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; }
-        
-        .scene-container, .scene-container * { user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; }
-        
-        header { background-color: white; padding: 10px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; gap: 10px; }
-        header h1 { margin: 0; color: var(--primary); font-size: 20px; }
-        header img { height: 35px; border-radius: 5px; }
-        
-        .scene-container { background: #ffffff; border-radius: 10px; box-shadow: inset 0 0 15px rgba(0,0,0,0.05), 0 4px 10px rgba(0,0,0,0.05); height: 250px; display: flex; justify-content: center; align-items: center; perspective: 1200px; overflow: hidden; touch-action: none; cursor: grab; }
+        :root { --base-bg: #f0f0f0; --base-text: #333333; --door-bg: #ffffff; --door-text: #000000; --mount-bg: #e0e0e0; }
+
+        .studio { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: var(--s6); align-items: start; padding-block: var(--s5) var(--s7); }
+        .studio-stage { position: sticky; top: calc(var(--header-h) + var(--s4)); display: grid; gap: var(--s3); }
+        .stage-head { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; }
+        .stage-tools { display: flex; gap: var(--s2); }
+
+        /* المعاينة 3D (نفس المنطق القديم) */
+        .scene-container, .scene-container * { user-select: none; -webkit-user-select: none; }
+        .scene-container { background: radial-gradient(circle at 50% 35%, #f6f6f4, #d9d9d4); border-radius: var(--r-lg); border: 1px solid var(--line); height: clamp(260px, 42vw, 440px); display: flex; justify-content: center; align-items: center; perspective: 1200px; overflow: hidden; touch-action: none; cursor: grab; position: relative; }
         .scene-container:active { cursor: grabbing; }
+        .scene-hint { position: absolute; bottom: 12px; inset-inline: 0; text-align: center; font-size: 0.8rem; color: #555; pointer-events: none; }
+        .light-mode-active .scene-container { background: radial-gradient(circle at 50% 35%, #1c1c22, #050507); }
+        .light-mode-active .scene-hint { color: #999; }
         .rotate-wrapper { transform-style: preserve-3d; transform: rotateX(0deg) rotateY(0deg); }
-        .sign-wrapper { position: relative; width: 480px; height: 70px; transform-style: preserve-3d; }
+        .sign-wrapper { position: relative; width: 480px; height: 70px; transform-style: preserve-3d; font-family: 'BeIN', 'Cairo', sans-serif; }
         .face { position: absolute; display: flex; justify-content: center; align-items: center; box-sizing: border-box; }
-        
         .base { position: absolute; top: 0; left: 20px; width: 440px; height: 70px; transform-style: preserve-3d; }
         .base .face { background: var(--base-bg); color: var(--base-text); border: 1px solid rgba(0,0,0,0.1); }
         .base .front, .base .back { width: 440px; height: 70px; padding: 0 25px; justify-content: space-between; font-size: 38px; font-weight: bold; }
@@ -42,10 +41,8 @@
         .base .back { transform: rotateY(180deg) translateZ(5px); }
         .base .top { width: 440px; height: 10px; top: 0; transform: rotateX(90deg) translateY(-5px); transform-origin: top; }
         .base .bottom { width: 440px; height: 10px; bottom: 0; transform: rotateX(-90deg) translateY(5px); transform-origin: bottom; }
-        
         .mount { position: absolute; top: 0; width: 20px; height: 70px; transform-style: preserve-3d; }
-        .mount-left { left: 0; }
-        .mount-right { right: 0; }
+        .mount-left { left: 0; } .mount-right { right: 0; }
         .mount .face { background: var(--mount-bg); border: 1px solid rgba(0,0,0,0.2); }
         .mount .front { width: 20px; height: 70px; transform: translateZ(9px); }
         .mount .back { width: 20px; height: 70px; transform: rotateY(180deg) translateZ(9px); }
@@ -53,7 +50,6 @@
         .mount .bottom { width: 20px; height: 18px; bottom: 0; transform: rotateX(-90deg) translateY(9px); transform-origin: bottom; }
         .mount .left { width: 18px; height: 70px; left: 0; transform: rotateY(-90deg) translateX(-9px); transform-origin: left; }
         .mount .right { width: 18px; height: 70px; right: 0; transform: rotateY(90deg) translateX(9px); transform-origin: right; }
-        
         .door { position: absolute; top: -5px; left: 20px; width: 200px; height: 80px; transform-style: preserve-3d; transition: transform 0.1s linear; }
         .door .face { background: var(--door-bg); color: var(--door-text); border: 1px solid rgba(0,0,0,0.2); }
         .door .front, .door .back { width: 200px; height: 80px; font-size: 40px; font-weight: bold; }
@@ -63,346 +59,289 @@
         .door .bottom { width: 200px; height: 22px; bottom: 0; transform: rotateX(-90deg) translateY(11px); transform-origin: bottom; }
         .door .left { width: 22px; height: 80px; left: 0; transform: rotateY(-90deg) translateX(-11px); transform-origin: left; }
         .door .right { width: 22px; height: 80px; right: 0; transform: rotateY(90deg) translateX(11px); transform-origin: right; }
-        
         .contour-effect { font-size: 42px; -webkit-text-stroke: 3.5px var(--door-text); paint-order: stroke fill; text-shadow: 2px 2px 0px var(--door-text), -2px -2px 0px var(--door-text); letter-spacing: -2px; }
-        
-        .light-mode-active .scene-container { background: #0a0a0a; }
         .light-mode-active .base .face, .light-mode-active .mount .face { background: #111; color: #fff; border-color: #222; }
         .light-mode-active .door .face { background: #222; color: #fff; border-color: #333; }
         .light-mode-active .base .front, .light-mode-active .base .back, .light-mode-active .door .front, .light-mode-active .door .back { text-shadow: 0 0 10px #fff, 0 0 20px #0ff; }
         .light-mode-active .contour-effect { -webkit-text-stroke: 0; text-shadow: 0 0 10px #fff, 0 0 20px #ff00ff !important; }
-        
-        .slider-container { background: white; padding: 10px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);}
-        .slider-container label { font-size: 13px; font-weight: bold; color: #555;}
-        input[type="range"] { width: 95%; margin-top: 5px; direction: ltr; }
-        
-        .controls { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: grid; grid-template-columns: 1fr 1fr; gap: 10px 15px; }
-        .control-group { display: flex; flex-direction: column; }
-        .control-group.full-width { grid-column: span 2; }
-        .control-group label { margin-bottom: 4px; font-weight: bold; font-size: 12px; color: var(--primary); }
-        .control-group select, .control-group input[type="text"], .control-group input[type="color"] { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; font-size: 13px; box-sizing: border-box; }
-        .control-group input[type="color"] { padding: 2px; height: 35px; cursor: pointer; }
-        
-        .toggle-light { grid-column: span 2; display: flex; align-items: center; justify-content: center; gap: 8px; background: #fff3cd; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; border: 1px solid #ffeeba; }
-        
-        .btn-submit { background-color: var(--secondary); color: white; border: none; padding: 12px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-family: inherit; transition: 0.3s;}
-        .btn-submit:hover { background-color: #c0392b; }
-        
-        footer { background-color: var(--primary); padding: 12px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; width: 100%; gap: 10px;}
-        .social-links { display: flex; justify-content: space-around; width: 100%; }
-        .social-links a { color: white; font-size: 20px; text-decoration: none; }
-        .privacy-link { color: #bdc3c7; font-size: 13px; text-decoration: none; font-family: 'Cairo', sans-serif;}
-        .privacy-link:hover { color: #fff; text-decoration: underline; }
-        
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
-        .modal-content { background-color: #fff; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; position: relative; }
-        .close-btn { position: absolute; top: 15px; left: 20px; font-size: 28px; cursor: pointer; color: #777; line-height: 1; }
-        .modal-content h3 { margin: 0 0 10px 0; color: var(--primary); text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px;}
-        .modal-content input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; box-sizing: border-box; font-size: 14px; }
+
+        .door-slider { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: var(--s3) var(--s4); display: grid; gap: var(--s1); }
+        .door-slider label { font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+        .door-slider input { width: 100%; direction: ltr; accent-color: var(--gold); }
+
+        /* لوحة التحكم */
+        .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+        .panel-section { padding: var(--s4) var(--s5); border-bottom: 1px solid var(--line); display: grid; gap: var(--s3); }
+        .panel-section:last-child { border-bottom: none; }
+        .panel-section h2 { font-size: 0.95rem; font-weight: 800; color: var(--gold); display: flex; align-items: center; gap: var(--s2); }
+        .ctl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3); }
+        .ctl-grid .full { grid-column: 1 / -1; }
+        .field input[type="color"] { padding: 4px; height: 48px; cursor: pointer; }
+        .toggle { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); background: #0F0F12; border: 1px solid var(--line); border-radius: var(--r-sm); padding: var(--s3) var(--s4); cursor: pointer; font-weight: 700; }
+        .toggle input { width: 22px; height: 22px; accent-color: var(--gold); }
+        .summary { font-size: 0.88rem; color: var(--muted); display: grid; gap: 4px; }
+        .summary b { color: var(--text); font-weight: 700; }
+        .studio-cta { display: grid; gap: var(--s2); }
+
+        /* نافذة الطلب */
+        .modal { display: none; position: fixed; inset: 0; z-index: 1700; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: var(--s4); }
+        .modal.is-open { display: flex; }
+        .modal-box { background: var(--light); color: var(--ink); width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; border-radius: var(--r-lg); padding: var(--s5); display: grid; gap: var(--s4); }
+        .modal-box .field input, .modal-box .field select, .modal-box .field textarea { background: var(--white); color: var(--ink); border-color: var(--line-light); }
+        .modal-head { display: flex; justify-content: space-between; align-items: center; }
+
+        @media (max-width: 960px) {
+            .studio { grid-template-columns: 1fr; gap: var(--s4); padding-top: var(--s3); }
+            .studio-stage { position: sticky; top: var(--header-h); z-index: 5; background: var(--bg); padding-block: var(--s2); }
+            .scene-container { height: 220px; }
+            .stage-head .h2 { font-size: 1.15rem; }
+            .studio-cta-fixed { position: sticky; bottom: 0; background: var(--bg); padding-block: var(--s3); border-top: 1px solid var(--line); z-index: 6; }
+        }
+        @media (max-width: 400px) { .ctl-grid { grid-template-columns: 1fr; } }
     </style>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js" defer></script>
+    <script src="/assets/js/config.js" defer></script>
+    <script src="/assets/js/store.js" defer></script>
 </head>
-<body>
+<body class="surface-dark">
+    <a class="skip-link" href="#main">تخطي للمحتوى</a>
+    <header id="site-header"></header>
 
-    <div class="app-container" id="appBody">
-        <header>
-            <img src="logo.png" alt="لوجو فكرة خشبة" onerror="this.style.display='none'">
-            <h1>فكرة خشبة</h1>
-            <a href="/" style="font-size: 13px; color: inherit; font-family: 'Cairo', sans-serif;">← رجوع للمتجر</a>
-        </header>
-
-        <div class="scene-container" id="sceneContainer">
-            <div class="rotate-wrapper" id="rotateWrapper">
-                <div class="sign-wrapper" id="signWrapper">
-                    <div class="mount mount-left">
-                        <div class="face front"></div><div class="face back"></div>
-                        <div class="face top"></div><div class="face bottom"></div>
-                        <div class="face left"></div><div class="face right"></div>
-                    </div>
-                    <div class="base" id="signBase">
-                        <div class="face front"><span id="fLeft">OPEN</span><span id="fRight">مفتوح</span></div>
-                        <div class="face back"><span id="bLeft">مفتوح</span><span id="bRight">OPEN</span></div>
-                        <div class="face top"></div><div class="face bottom"></div>
-                    </div>
-                    <div class="mount mount-right">
-                        <div class="face front"></div><div class="face back"></div>
-                        <div class="face top"></div><div class="face bottom"></div>
-                        <div class="face left"></div><div class="face right"></div>
-                    </div>
-                    <div class="door" id="signDoor">
-                        <div class="face front"><span class="dText">PULL</span></div>
-                        <div class="face back"><span class="dText">PUSH</span></div>
-                        <div class="face top"></div><div class="face bottom"></div>
-                        <div class="face left"></div><div class="face right"></div>
+    <main id="main">
+        <div class="container studio" id="appBody">
+            <section class="studio-stage" aria-label="معاينة التصميم">
+                <div class="stage-head">
+                    <div><span class="eyebrow"><i class="fa-solid fa-wand-magic-sparkles"></i> استوديو التصميم</span><h1 class="h2">لوحة Open / Closed للمحل</h1></div>
+                    <div class="stage-tools">
+                        <button class="btn btn-ghost btn-sm" type="button" id="resetView" title="رجّع زاوية المعاينة"><i class="fa-solid fa-rotate"></i> الزاوية</button>
+                        <button class="btn btn-ghost btn-sm" type="button" id="resetDesign" title="رجّع التصميم الافتراضي"><i class="fa-solid fa-arrow-rotate-left"></i> من الأول</button>
                     </div>
                 </div>
-            </div>
+                <div class="scene-container" id="sceneContainer">
+                    <div class="rotate-wrapper" id="rotateWrapper">
+                        <div class="sign-wrapper" id="signWrapper">
+                            <div class="mount mount-left"><div class="face front"></div><div class="face back"></div><div class="face top"></div><div class="face bottom"></div><div class="face left"></div><div class="face right"></div></div>
+                            <div class="base" id="signBase">
+                                <div class="face front"><span id="fLeft">OPEN</span><span id="fRight">مفتوح</span></div>
+                                <div class="face back"><span id="bLeft">مفتوح</span><span id="bRight">OPEN</span></div>
+                                <div class="face top"></div><div class="face bottom"></div>
+                            </div>
+                            <div class="mount mount-right"><div class="face front"></div><div class="face back"></div><div class="face top"></div><div class="face bottom"></div><div class="face left"></div><div class="face right"></div></div>
+                            <div class="door" id="signDoor">
+                                <div class="face front"><span class="dText">PULL</span></div>
+                                <div class="face back"><span class="dText">PUSH</span></div>
+                                <div class="face top"></div><div class="face bottom"></div><div class="face left"></div><div class="face right"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="scene-hint"><i class="fa-solid fa-hand-pointer"></i> اسحب لتلف اللوحة وتشوف الوش التاني</span>
+                </div>
+                <div class="door-slider">
+                    <label for="doorSlider">حرّك الباب يمين / يسار</label>
+                    <input type="range" min="0" max="100" value="0" id="doorSlider">
+                </div>
+            </section>
+
+            <section aria-label="إعدادات التصميم">
+                <div class="panel">
+                    <div class="panel-section">
+                        <h2><i class="fa-solid fa-lightbulb"></i> الإضاءة</h2>
+                        <label class="toggle"><span>وضع الإضاءة الليلية (نيون)</span><input type="checkbox" id="lightMode"></label>
+                    </div>
+                    <div class="panel-section">
+                        <h2><i class="fa-solid fa-font"></i> كلمات القاعدة</h2>
+                        <div class="ctl-grid">
+                            <div class="field"><label for="wordRight">الكلمة اليمنى</label>
+                                <select id="wordRight"><option value="مفتوح">مفتوح</option><option value="مغلق">مغلق</option><option value="مغلق للصلاة">مغلق للصلاة</option><option value="OPEN">OPEN</option><option value="CLOSED">CLOSED</option></select>
+                            </div>
+                            <div class="field"><label for="wordLeft">الكلمة اليسرى</label>
+                                <select id="wordLeft"><option value="OPEN">OPEN</option><option value="CLOSED">CLOSED</option><option value="مفتوح">مفتوح</option><option value="مغلق">مغلق</option><option value="مغلق للصلاة">مغلق للصلاة</option></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-section">
+                        <h2><i class="fa-solid fa-door-open"></i> الباب المتحرك</h2>
+                        <div class="ctl-grid">
+                            <div class="field full"><label for="doorAction">نص الباب</label>
+                                <select id="doorAction"><option value="PULL">PULL</option><option value="PUSH">PUSH</option><option value="CUSTOM">كلمة مخصصة (بكونتور)</option><option value="NONE">بدون كلام</option></select>
+                            </div>
+                            <div class="field full" id="customInputDiv" style="display:none"><label for="customText">الكلمة المخصصة (عربي أو إنجليزي)</label><input type="text" id="customText" maxlength="12" placeholder="اكتب الكلمة هنا…"></div>
+                            <div class="field"><label for="doorTextColorSelect">لون كتابة الباب</label>
+                                <select id="doorTextColorSelect"><option value="#000000">أسود</option><option value="#FFD700">ذهبي</option><option value="PICKER">لون مخصص…</option></select>
+                            </div>
+                            <div class="field" id="customColorDiv" style="display:none"><label for="doorTextColorPicker">اختار اللون</label><input type="color" id="doorTextColorPicker" value="#e74c3c"></div>
+                        </div>
+                    </div>
+                    <div class="panel-section">
+                        <h2><i class="fa-solid fa-palette"></i> الألوان</h2>
+                        <div class="ctl-grid">
+                            <div class="field"><label for="baseColor">لون القاعدة</label><input type="color" id="baseColor" value="#f0f0f0"></div>
+                            <div class="field"><label for="baseTextColor">لون كلام القاعدة</label><input type="color" id="baseTextColor" value="#333333"></div>
+                            <div class="field"><label for="doorColor">لون الباب</label><input type="color" id="doorColor" value="#ffffff"></div>
+                        </div>
+                    </div>
+                    <div class="panel-section">
+                        <h2><i class="fa-solid fa-list-check"></i> ملخص تصميمك</h2>
+                        <div class="summary" id="summary"></div>
+                    </div>
+                </div>
+                <div class="studio-cta studio-cta-fixed" style="margin-top:16px">
+                    <button class="btn btn-gold btn-block" type="button" id="openOrder"><i class="fa-solid fa-check"></i> اطلب اللوحة دي</button>
+                    <a class="btn btn-ghost btn-sm" id="studioWa" target="_blank" rel="noopener" href="#"><i class="fa-brands fa-whatsapp"></i> عندك سؤال؟ كلمنا واتساب</a>
+                </div>
+            </section>
         </div>
+    </main>
 
-        <div class="slider-container">
-            <label>سحب الباب يمين / يسار</label>
-            <input type="range" min="0" max="100" value="0" id="doorSlider">
-        </div>
+    <footer id="site-footer"></footer>
 
-        <div class="controls">
-            <label class="toggle-light">
-                <input type="checkbox" id="lightMode">
-                <span>تفعيل وضع الإضاءة الليلية (نيون)</span>
-            </label>
-
-            <div class="control-group">
-                <label>الكلمة اليمنى</label>
-                <select id="wordRight">
-                    <option value="مفتوح">مفتوح</option>
-                    <option value="مغلق">مغلق</option>
-                    <option value="مغلق للصلاة">مغلق للصلاة</option>
-                    <option value="OPEN">OPEN</option>
-                    <option value="CLOSED">CLOSED</option>
-                </select>
-            </div>
-
-            <div class="control-group">
-                <label>الكلمة اليسرى</label>
-                <select id="wordLeft">
-                    <option value="OPEN">OPEN</option>
-                    <option value="CLOSED">CLOSED</option>
-                    <option value="مفتوح">مفتوح</option>
-                    <option value="مغلق">مغلق</option>
-                    <option value="مغلق للصلاة">مغلق للصلاة</option>
-                </select>
-            </div>
-
-            <div class="control-group"><label>لون القاعدة</label><input type="color" id="baseColor" value="#f0f0f0"></div>
-            <div class="control-group"><label>لون كلمات القاعدة</label><input type="color" id="baseTextColor" value="#333333"></div>
-
-            <div class="control-group">
-                <label>نص الباب المتحرك</label>
-                <select id="doorAction">
-                    <option value="PULL">PULL</option>
-                    <option value="PUSH">PUSH</option>
-                    <option value="CUSTOM">مخصص (أضف كونتور)</option>
-                    <option value="NONE">بدون كلام</option>
-                </select>
-            </div>
-
-            <div class="control-group"><label>لون الباب</label><input type="color" id="doorColor" value="#ffffff"></div>
-
-            <div class="control-group full-width" id="customInputDiv" style="display: none;">
-                <label>الكلمة المخصصة (عربي أو إنجليزي)</label>
-                <input type="text" id="customText" placeholder="اكتب الكلمة هنا...">
-            </div>
-
-            <div class="control-group">
-                <label>لون نص الباب</label>
-                <select id="doorTextColorSelect">
-                    <option value="#000000">أسود</option>
-                    <option value="#FFD700">ذهبي</option>
-                    <option value="PICKER">لون مخصص...</option>
-                </select>
-            </div>
-
-            <div class="control-group" id="customColorDiv" style="display: none;">
-                <label>اختر اللون المخصص</label>
-                <input type="color" id="doorTextColorPicker" value="#e74c3c">
-            </div>
-        </div>
-
-        <button class="btn-submit" onclick="openOrderModal()">إتمام الطلب الآن</button>
-
-        <footer>
-            <div class="social-links">
-                <a href="https://www.facebook.com/fkrt.khshbh"><i class="fab fa-facebook"></i></a>
-                <a href="https://www.instagram.com/fekrt_5shba/"><i class="fab fa-instagram"></i></a>
-                <a href="https://wa.me/201069222150"><i class="fab fa-whatsapp"></i></a>
-                <a href="https://www.tiktok.com/@fkret.khshba"><i class="fab fa-tiktok"></i></a>
-            </div>
-            <a href="/privacy" class="privacy-link">سياسة الخصوصية وحماية المستخدم</a>
-        </footer>
-    </div>
-
-    <div id="orderModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeOrderModal()">&times;</span>
-            <h3>تأكيد بيانات الطلب</h3>
-            <label>الاسم بالكامل:</label>
-            <input type="text" id="customerName" placeholder="اكتب اسمك هنا" required>
-            <label>رقم الهاتف (للتواصل):</label>
-            <input type="tel" id="customerPhone" placeholder="01xxxxxxxxx" required>
-            <label>العنوان بالتفصيل:</label>
-            <input type="text" id="customerAddress" placeholder="المحافظة، المنطقة، الشارع" required>
-            <label>عدد القطع المطلوبة:</label>
-            <input type="number" id="orderQuantity" value="1" min="1" required>
-            <label>ملاحظات إضافية:</label>
-            <input type="text" id="orderNotes" placeholder="أي ملاحظات خاصة بالتوصيل أو التصميم">
-            <button class="btn-submit" style="background-color: #2ecc71; margin-top: 10px;" onclick="submitOrderToAdmin()">
-                <i class="fas fa-check-circle"></i> تأكيد وإرسال الطلب
-            </button>
+    <div class="modal" id="orderModal" role="dialog" aria-modal="true" aria-labelledby="orderTitle">
+        <div class="modal-box" id="orderBox">
+            <div class="modal-head"><h2 class="h3" id="orderTitle">تأكيد بيانات الطلب</h2><button class="icon-btn" type="button" id="closeOrder" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="summary" id="modalSummary" style="color:var(--ink-2); background:var(--white); border:1px solid var(--line-light); border-radius:8px; padding:12px"></div>
+            <form id="orderForm" novalidate style="display:grid; gap:12px">
+                <div class="field"><label for="customerName">الاسم بالكامل</label><input id="customerName" autocomplete="name" required><span class="field-error">اكتب اسمك</span></div>
+                <div class="field"><label for="customerPhone">رقم الموبايل</label><input id="customerPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="01xxxxxxxxx" dir="ltr" style="text-align:right" required><span class="field-error">اكتب رقم موبايل مصري صحيح</span></div>
+                <div class="field"><label for="customerGov">المحافظة</label><select id="customerGov" required></select><span class="field-error">اختار المحافظة</span></div>
+                <div class="field"><label for="customerAddress">العنوان بالتفصيل</label><input id="customerAddress" autocomplete="street-address" placeholder="المنطقة، الشارع، رقم العمارة" required><span class="field-error">اكتب العنوان</span></div>
+                <div class="field"><label for="orderQuantity">عدد القطع</label><input id="orderQuantity" type="number" inputmode="numeric" value="1" min="1" required><span class="field-error">العدد لازم يكون 1 أو أكتر</span></div>
+                <div class="field"><label for="orderNotes">ملاحظات <span class="muted">(اختياري)</span></label><input id="orderNotes" placeholder="أي ملاحظات خاصة بالتصميم أو التوصيل"></div>
+                <div id="orderMsg" aria-live="assertive"></div>
+                <button class="btn btn-gold btn-block" type="submit" id="submitOrder">تأكيد وإرسال الطلب</button>
+            </form>
         </div>
     </div>
 
     <script>
-        // 👇 بيانات الـ Firebase الخاصة بيك 👇
-        const firebaseConfig = {
-            apiKey: "AIzaSyAvVMu2xPpZGY2acNzn2A9QfxnQy_J3IZI",
-            authDomain: "open-close-11f8d.firebaseapp.com",
-            databaseURL: "https://open-close-11f8d-default-rtdb.firebaseio.com",
-            projectId: "open-close-11f8d",
-            storageBucket: "open-close-11f8d.firebasestorage.app",
-            messagingSenderId: "119135682864",
-            appId: "1:119135682864:web:8096a9080ec2a1267e88f5"
-        };
-        // 👆 ---------------------------- 👆
+        document.addEventListener('DOMContentLoaded', function () {
+            FK.renderChrome('studio');
+            const $ = id => document.getElementById(id);
+            const root = document.documentElement, appBody = $('appBody');
+            const signWrapper = $('signWrapper'), rotateWrapper = $('rotateWrapper'), sceneContainer = $('sceneContainer'), signDoor = $('signDoor');
+            const DEFAULTS = { wordRight: 'مفتوح', wordLeft: 'OPEN', doorAction: 'PULL', customText: '', doorTextColorSelect: '#000000', doorTextColorPicker: '#e74c3c', baseColor: '#f0f0f0', baseTextColor: '#333333', doorColor: '#ffffff' };
+            $('studioWa').href = FK.waLink('السلام عليكم، عندي سؤال عن لوحة Open / Closed');
+            $('customerGov').innerHTML = FK.govOptions();
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+            function resize3D() { signWrapper.style.transform = `scale(${Math.min(0.9, sceneContainer.offsetWidth / 520)})`; }
+            window.addEventListener('resize', resize3D); resize3D();
 
-        const root = document.documentElement;
-        const appBody = document.getElementById('appBody');
-        const signWrapper = document.getElementById('signWrapper');
-        const rotateWrapper = document.getElementById('rotateWrapper');
-        const sceneContainer = document.getElementById('sceneContainer');
-        const signDoor = document.getElementById('signDoor');
-        
-        function resize3D() {
-            const containerWidth = sceneContainer.offsetWidth;
-            const scale = Math.min(0.9, containerWidth / 520);
-            signWrapper.style.transform = `scale(${scale})`;
-        }
-        window.addEventListener('resize', resize3D);
-        resize3D();
-
-        function updateTexts() {
-            const wR = document.getElementById('wordRight').value;
-            const wL = document.getElementById('wordLeft').value;
-            document.getElementById('fLeft').innerText = wL;
-            document.getElementById('fRight').innerText = wR;
-            document.getElementById('bLeft').innerText = wR;
-            document.getElementById('bRight').innerText = wL;
-        }
-        document.getElementById('wordRight').addEventListener('change', updateTexts);
-        document.getElementById('wordLeft').addEventListener('change', updateTexts);
-
-        function updateDoor() {
-            const action = document.getElementById('doorAction').value;
-            const customDiv = document.getElementById('customInputDiv');
-            const dTexts = document.querySelectorAll('.dText');
-            let finalWord = "";
-            let isCustom = false;
-
-            if (action === 'CUSTOM') {
-                customDiv.style.display = 'block';
-                finalWord = document.getElementById('customText').value;
-                isCustom = true;
-            } else {
-                customDiv.style.display = 'none';
-                finalWord = action === 'NONE' ? "" : action;
+            function updateTexts() {
+                const wR = $('wordRight').value, wL = $('wordLeft').value;
+                $('fLeft').innerText = wL; $('fRight').innerText = wR; $('bLeft').innerText = wR; $('bRight').innerText = wL;
+                updateSummary();
             }
+            function doorWord() { const a = $('doorAction').value; return a === 'CUSTOM' ? $('customText').value : (a === 'NONE' ? '' : a); }
+            function updateDoor() {
+                const action = $('doorAction').value, isCustom = action === 'CUSTOM';
+                $('customInputDiv').style.display = isCustom ? 'flex' : 'none';
+                const word = doorWord();
+                document.querySelectorAll('.dText').forEach(el => { el.innerText = word; el.classList.toggle('contour-effect', isCustom && word.trim() !== ''); });
+                updateSummary();
+            }
+            function doorTextColor() { return $('doorTextColorSelect').value === 'PICKER' ? $('doorTextColorPicker').value : $('doorTextColorSelect').value; }
+            function updateColors() {
+                root.style.setProperty('--base-bg', $('baseColor').value);
+                root.style.setProperty('--base-text', $('baseTextColor').value);
+                root.style.setProperty('--door-bg', $('doorColor').value);
+                root.style.setProperty('--mount-bg', $('baseColor').value);
+                $('customColorDiv').style.display = $('doorTextColorSelect').value === 'PICKER' ? 'flex' : 'none';
+                root.style.setProperty('--door-text', doorTextColor());
+                updateSummary();
+            }
+            function summaryHTML() {
+                const sw = c => `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${c};border:1px solid #888;vertical-align:middle"></span>`;
+                return `<div>القاعدة: <b>${FK.esc($('wordRight').value)} / ${FK.esc($('wordLeft').value)}</b> ${sw($('baseColor').value)} ${sw($('baseTextColor').value)}</div>
+                    <div>الباب: <b>${FK.esc(doorWord() || 'بدون كلام')}</b> ${sw($('doorColor').value)} ${sw(doorTextColor())}</div>
+                    <div>الإضاءة: <b>${$('lightMode').checked ? 'مضيئة (نيون)' : 'بدون إضاءة'}</b></div>`;
+            }
+            function updateSummary() { $('summary').innerHTML = summaryHTML(); }
 
-            dTexts.forEach(el => {
-                el.innerText = finalWord;
-                if(isCustom && finalWord.trim() !== "") { el.classList.add('contour-effect'); } 
-                else { el.classList.remove('contour-effect'); }
-            });
-        }
-        document.getElementById('doorAction').addEventListener('change', updateDoor);
-        document.getElementById('customText').addEventListener('input', updateDoor);
+            ['wordRight', 'wordLeft'].forEach(id => $(id).addEventListener('change', updateTexts));
+            $('doorAction').addEventListener('change', updateDoor);
+            $('customText').addEventListener('input', updateDoor);
+            ['baseColor', 'baseTextColor', 'doorColor', 'doorTextColorPicker'].forEach(id => $(id).addEventListener('input', updateColors));
+            $('doorTextColorSelect').addEventListener('change', updateColors);
+            $('lightMode').addEventListener('change', function () { appBody.classList.toggle('light-mode-active', this.checked); updateSummary(); });
+            $('doorSlider').addEventListener('input', function () { signDoor.style.transform = `translateX(${(this.value / 100) * 240}px)`; });
 
-        const doorTextSelect = document.getElementById('doorTextColorSelect');
-        const doorTextPicker = document.getElementById('doorTextColorPicker');
-        const customColorDiv = document.getElementById('customColorDiv');
+            let isDragging = false, prevX = 0, prevY = 0, rotX = 0, rotY = 0;
+            const pt = e => e.touches ? e.touches[0] : e;
+            function startDrag(e) { isDragging = true; prevX = pt(e).clientX; prevY = pt(e).clientY; }
+            function drag(e) {
+                if (!isDragging) return; e.preventDefault();
+                const x = pt(e).clientX, y = pt(e).clientY;
+                rotY += (x - prevX) * 0.8; rotX -= (y - prevY) * 0.8; rotX = Math.max(-35, Math.min(35, rotX));
+                rotateWrapper.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+                prevX = x; prevY = y;
+            }
+            function endDrag() { isDragging = false; }
+            sceneContainer.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+            sceneContainer.addEventListener('touchstart', startDrag, { passive: false });
+            sceneContainer.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('touchend', endDrag);
 
-        function updateColors() {
-            root.style.setProperty('--base-bg', document.getElementById('baseColor').value);
-            root.style.setProperty('--base-text', document.getElementById('baseTextColor').value);
-            root.style.setProperty('--door-bg', document.getElementById('doorColor').value);
-            root.style.setProperty('--mount-bg', document.getElementById('baseColor').value);
-
-            let dtColor = doorTextSelect.value;
-            if (dtColor === 'PICKER') {
-                customColorDiv.style.display = 'flex';
-                dtColor = doorTextPicker.value;
-            } else { customColorDiv.style.display = 'none'; }
-            root.style.setProperty('--door-text', dtColor);
-        }
-
-        document.getElementById('baseColor').addEventListener('input', updateColors);
-        document.getElementById('baseTextColor').addEventListener('input', updateColors);
-        document.getElementById('doorColor').addEventListener('input', updateColors);
-        doorTextSelect.addEventListener('change', updateColors);
-        doorTextPicker.addEventListener('input', updateColors);
-
-        document.getElementById('lightMode').addEventListener('change', function() {
-            if(this.checked) appBody.classList.add('light-mode-active');
-            else appBody.classList.remove('light-mode-active');
-        });
-
-        document.getElementById('doorSlider').addEventListener('input', function() {
-            let moveX = (this.value / 100) * 240;
-            signDoor.style.transform = `translateX(${moveX}px)`;
-        });
-
-        let isDragging = false, prevX = 0, prevY = 0, rotX = 0, rotY = 0;
-        function startDrag(e) { isDragging = true; prevX = e.clientX || e.touches[0].clientX; prevY = e.clientY || e.touches[0].clientY; }
-        function drag(e) {
-            if (!isDragging) return; e.preventDefault(); 
-            let clientX = e.clientX || e.touches[0].clientX; let clientY = e.clientY || e.touches[0].clientY;
-            let deltaX = clientX - prevX; let deltaY = clientY - prevY;
-            rotY += deltaX * 0.8; rotX -= deltaY * 0.8; rotX = Math.max(-35, Math.min(35, rotX));
-            rotateWrapper.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
-            prevX = clientX; prevY = clientY;
-        }
-        function endDrag() { isDragging = false; }
-        sceneContainer.addEventListener('mousedown', startDrag);
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('mouseup', endDrag);
-        sceneContainer.addEventListener('touchstart', startDrag, {passive: false});
-        document.addEventListener('touchmove', drag, {passive: false});
-        document.addEventListener('touchend', endDrag);
-
-        function openOrderModal() { document.getElementById('orderModal').style.display = 'flex'; }
-        function closeOrderModal() { document.getElementById('orderModal').style.display = 'none'; }
-
-        // إرسال البيانات مباشرة إلى سحابة جوجل Firebase
-        function submitOrderToAdmin() {
-            const name = document.getElementById('customerName').value.trim();
-            const phone = document.getElementById('customerPhone').value.trim();
-            const address = document.getElementById('customerAddress').value.trim();
-            const qty = document.getElementById('orderQuantity').value;
-            const notes = document.getElementById('orderNotes').value.trim();
-            const isLight = document.getElementById('lightMode').checked;
-
-            if(!name || !phone || !address) { alert("برجاء استكمال البيانات الأساسية!"); return; }
-
-            let dAction = document.getElementById('doorAction').value;
-            if(dAction === 'CUSTOM') dAction = document.getElementById('customText').value;
-
-            const orderId = Date.now();
-            const orderData = {
-                id: orderId, name: name, phone: phone, address: address, qty: qty, notes: notes,
-                baseDetails: `${document.getElementById('wordRight').value} / ${document.getElementById('wordLeft').value}`,
-                baseColor: document.getElementById('baseColor').value,
-                baseTextColor: document.getElementById('baseTextColor').value,
-                doorDetails: dAction, doorColor: document.getElementById('doorColor').value,
-                doorTextColor: document.getElementById('doorTextColorSelect').value === 'PICKER' ? document.getElementById('doorTextColorPicker').value : document.getElementById('doorTextColorSelect').value,
-                isLight: isLight, paid: "", 
-                status: { pen: false, cam: false, truck: false },
-                rowColor: "#ffffff", pinned: false, adminComment: ""
+            $('resetView').onclick = () => { rotX = 0; rotY = 0; rotateWrapper.style.transform = 'rotateX(0deg) rotateY(0deg)'; $('doorSlider').value = 0; signDoor.style.transform = 'translateX(0px)'; };
+            $('resetDesign').onclick = () => {
+                Object.entries(DEFAULTS).forEach(([k, v]) => $(k).value = v);
+                $('lightMode').checked = false; appBody.classList.remove('light-mode-active');
+                updateTexts(); updateDoor(); updateColors(); $('resetView').onclick();
             };
+            updateTexts(); updateDoor(); updateColors();
 
-            db.ref('orders/' + orderId).set(orderData, (error) => {
-                if (error) { alert("حدث خطأ أثناء إرسال الطلب، يرجى المحاولة مرة أخرى."); } 
-                else {
-                    alert(`تم إرسال الطلب بنجاح ${isLight ? '(اللوحة مضيئة)' : ''} وسوف نتواصل معك قريباً!`);
-                    closeOrderModal();
-                    document.getElementById('customerName').value = '';
-                    document.getElementById('customerPhone').value = '';
-                    document.getElementById('customerAddress').value = '';
-                    document.getElementById('orderNotes').value = '';
-                }
+            // نافذة الطلب
+            const modal = $('orderModal');
+            const openModal = () => { $('modalSummary').innerHTML = summaryHTML(); modal.classList.add('is-open'); $('customerName').focus(); FK.track('begin_checkout', { item_id: 'open-closed-3d' }); };
+            const closeModal = () => { modal.classList.remove('is-open'); $('openOrder').focus(); };
+            $('openOrder').onclick = openModal;
+            $('closeOrder').onclick = closeModal;
+            modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+            document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal(); });
+
+            $('orderForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const v = id => $(id).value.trim();
+                const checks = [['customerName', !!v('customerName')], ['customerPhone', FK.isValidPhone(v('customerPhone'))], ['customerGov', !!v('customerGov')], ['customerAddress', v('customerAddress').length >= 5], ['orderQuantity', parseInt(v('orderQuantity')) >= 1]];
+                let first = null;
+                checks.forEach(([id, ok]) => { $(id).closest('.field').classList.toggle('has-error', !ok); if (!ok && !first) first = id; });
+                if (first) { $(first).focus(); return; }
+                if ($('doorAction').value === 'CUSTOM' && !v('customText')) { $('orderMsg').innerHTML = '<div class="notice error"><i class="fa-solid fa-triangle-exclamation"></i><span>اكتب الكلمة المخصصة للباب أو اختار نص تاني.</span></div>'; return; }
+
+                const btn = $('submitOrder'); btn.classList.add('is-loading'); $('orderMsg').innerHTML = '';
+                const isLight = $('lightMode').checked, orderId = Date.now(), ref = FK.makeRef();
+                // نفس شكل البيانات القديم عشان لوحة الإدارة تعرضه كـ "لوحة 3D"
+                const orderData = {
+                    id: orderId, orderRef: ref, timestamp: orderId,
+                    name: v('customerName'), phone: FK.normalizePhone(v('customerPhone')),
+                    governorate: v('customerGov'), address: `${v('customerGov')} — ${v('customerAddress')}`,
+                    qty: v('orderQuantity'), notes: [parseInt(v('orderQuantity')) > 1 ? `العدد: ${v('orderQuantity')}` : '', v('orderNotes')].filter(Boolean).join(' — '),
+                    baseDetails: `${$('wordRight').value} / ${$('wordLeft').value}`,
+                    baseColor: $('baseColor').value, baseTextColor: $('baseTextColor').value,
+                    doorDetails: doorWord() || 'بدون كلام', doorColor: $('doorColor').value, doorTextColor: doorTextColor(),
+                    isLight: isLight, paid: '', status: { pen: false, cam: false, truck: false },
+                    rowColor: '#ffffff', pinned: false, adminComment: '', orderState: 'active', source: 'web-v2-studio'
+                };
+                FK.db().ref('orders/' + orderId).set(orderData).then(() => {
+                    try { localStorage.setItem('fk_last_order', String(orderId)); localStorage.setItem('fk_last_notif_time', Date.now()); } catch (err) { }
+                    FK.track('purchase_request', { item_id: 'open-closed-3d' });
+                    $('orderBox').innerHTML = `
+                        <div class="success-box">
+                            <div class="check"><i class="fa-solid fa-check"></i></div>
+                            <h2 class="h3">طلبك اتسجل بنجاح ${isLight ? '(لوحة مضيئة)' : ''}</h2>
+                            <p class="muted">رقم طلبك</p>
+                            <div class="ref">${ref}</div>
+                            <p class="muted small">هنكلمك قريب لتأكيد التصميم والسعر ومصاريف الشحن.</p>
+                            <a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="${FK.waLink('السلام عليكم، عملت طلب لوحة Open/Closed من الموقع ورقمه ' + ref)}"><i class="fa-brands fa-whatsapp"></i> ابعت رقم الطلب على واتساب (اختياري)</a>
+                            <button class="btn btn-ghost btn-sm" type="button" onclick="location.reload()">تصميم جديد</button>
+                        </div>`;
+                }).catch(() => {
+                    btn.classList.remove('is-loading');
+                    $('orderMsg').innerHTML = '<div class="notice error"><i class="fa-solid fa-triangle-exclamation"></i><span>الطلب ماتسجلش بسبب مشكلة في الاتصال. جرّب تاني أو كلمنا واتساب.</span></div>';
+                });
             });
-        }
+        });
     </script>
 </body>
 </html>
