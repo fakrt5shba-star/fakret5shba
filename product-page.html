@@ -96,7 +96,7 @@
                         ${p.designMockup ? `<div class="notice"><i class="fa-solid fa-pen-ruler"></i><span>الصورة تصميم توضيحي من فكرة خشبة. بننفذه بنفس الفكرة والخامات المذكورة، وتقدر تغيّر الكلام والألوان والمقاس.</span></div>` : ''}
                         ${p.materials.length ? `<div><h2 class="h3" style="margin-bottom:8px">الخامات والمواصفات</h2><ul class="spec-list">${p.materials.map(m => `<li><i class="fa-solid fa-circle"></i>${FK.esc(m)}</li>`).join('')}</ul></div>` : ''}
                         <div class="field"><label for="note">ملاحظات التصميم <span class="muted">(اختياري)</span></label><textarea id="note" rows="2" placeholder="مثال: الاسم المطلوب، اللون، المقاس…"></textarea></div>
-                        <div class="sticky-buy" style="display:grid; gap:12px">
+                        <div class="sticky-buy${isQuote ? ' is-quote' : ''}">
                             ${isQuote ? `
                                 <a class="btn btn-gold btn-block" href="/quote?product=${encodeURIComponent(p.id)}">اطلب عرض سعر</a>
                                 <a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="${FK.waLink(waText)}"><i class="fa-brands fa-whatsapp"></i> اسأل على واتساب</a>
@@ -104,8 +104,9 @@
                                 <div class="pd-actions">
                                     <div class="qty" role="group" aria-label="الكمية"><button type="button" id="qPlus" aria-label="زيادة">+</button><span id="qVal">1</span><button type="button" id="qMinus" aria-label="تقليل">−</button></div>
                                     <button class="btn btn-gold btn-block" type="button" id="addBtn"><i class="fa-solid fa-bag-shopping"></i> أضف للسلة</button>
+                                    <a class="wa-mini" target="_blank" rel="noopener" href="${FK.waLink(waText)}" aria-label="اسأل على واتساب"><i class="fa-brands fa-whatsapp"></i></a>
                                 </div>
-                                <a class="btn btn-outline btn-block" target="_blank" rel="noopener" href="${FK.waLink(waText)}"><i class="fa-brands fa-whatsapp"></i> عندك سؤال؟ كلمنا واتساب</a>
+                                <a class="btn btn-outline btn-block pd-wa-full" target="_blank" rel="noopener" href="${FK.waLink(waText)}"><i class="fa-brands fa-whatsapp"></i> عندك سؤال؟ كلمنا واتساب</a>
                             `}
                         </div>
                         <div class="trust-row">

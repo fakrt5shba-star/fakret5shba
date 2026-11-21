@@ -209,6 +209,20 @@ main { flex: 1; }
 .search-box i { position: absolute; inset-inline-start: 14px; top: 50%; transform: translateY(-50%); color: var(--ink-2); }
 .search-box input { padding-inline-start: 40px !important; }
 .result-count { font-size: 0.9rem; color: var(--ink-2); }
+#sort { width: auto; min-width: 170px; }
+.filters-toggle { display: none; gap: 6px; }
+.filters-count[hidden] { display: none; }
+.filters-count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--gold); color: #16161A; font-size: 0.75rem; font-weight: 800; }
+@media (max-width: 640px) {
+    /* المنتجات تبان أسرع على الموبايل: البحث سطر، والترتيب والفلترة سطر */
+    .toolbar { gap: var(--s3); margin-bottom: var(--s4); }
+    .search-box { flex: 1 1 100%; }
+    #sort { flex: 1; min-width: 0; }
+    .filters-toggle { display: inline-flex; min-height: 48px; }
+    .more-filters { display: none; background: var(--white); border: 1px solid var(--line-light); border-radius: var(--r-sm); padding: var(--s3); }
+    .more-filters.is-open { display: flex; }
+    .more-filters > span { margin-inline-start: 0 !important; width: 100%; }
+}
 
 /* Forms */
 .field { display: flex; flex-direction: column; gap: var(--s1); }
@@ -282,7 +296,7 @@ main { flex: 1; }
 .spec-list li { display: flex; gap: var(--s2); align-items: flex-start; font-size: 0.95rem; }
 .spec-list li i { color: #9A7B16; margin-top: 6px; font-size: 0.8rem; }
 .pd-desc { white-space: pre-line; color: var(--ink-2); line-height: 1.9; }
-.pd-actions { display: grid; grid-template-columns: auto 1fr; gap: var(--s3); align-items: center; }
+.pd-actions { display: grid; grid-template-columns: auto 1fr auto; gap: var(--s3); align-items: center; }
 .pd-actions .qty { margin: 0; height: 48px; }
 .pd-actions .qty button { width: 44px; height: 46px; }
 .opt-group { border: 0; display: grid; gap: var(--s2); }
@@ -299,8 +313,17 @@ main { flex: 1; }
 @media (max-width: 860px) {
     .pd-grid { grid-template-columns: 1fr; gap: var(--s5); }
     .pd-gallery { position: static; }
-    .sticky-buy { position: sticky; bottom: 0; background: var(--light); padding-block: var(--s3); border-top: 1px solid var(--line-light); z-index: 5; }
+    .sticky-buy { position: sticky; bottom: 0; background: var(--light); padding-block: var(--s3); border-top: 1px solid var(--line-light); z-index: 5; box-shadow: 0 -10px 24px rgba(22, 22, 26, 0.08); margin-inline: calc(var(--s4) * -1); padding-inline: var(--s4); }
+    /* شريط الشراء على الموبايل في سطر واحد: الكمية + أضف للسلة + واتساب */
+    .sticky-buy .pd-wa-full { display: none; }
+    .sticky-buy .wa-mini { display: grid; }
+    .sticky-buy.is-quote { grid-template-columns: 1fr 1fr; }
+    .sticky-buy.is-quote .btn { padding-inline: var(--s2); font-size: 0.92rem; }
+    /* زرار واتساب العايم بيتشال في صفحة المنتج لأن شريط الشراء فيه واتساب */
+    .has-sticky-buy .wa-float { display: none; }
 }
+.sticky-buy { display: grid; gap: var(--s3); }
+.wa-mini { display: none; flex: 0 0 48px; width: 48px; height: 48px; place-items: center; border-radius: var(--r-sm); background: var(--wa); color: #fff; font-size: 1.5rem; }
 
 /* Business */
 .biz-hero { padding-block: var(--s7); display: grid; grid-template-columns: 1fr 1fr; gap: var(--s6); align-items: center; }
@@ -362,6 +385,14 @@ main { flex: 1; }
 .prose p, .prose li { color: var(--muted); }
 .prose ul { padding-inline-start: var(--s5); }
 .prose a { color: var(--gold); text-decoration: underline; }
+
+/* ---------- أزرار الواجهة ---------- */
+.hero-link { flex-basis: 100%; display: inline-flex; align-items: center; gap: var(--s2); color: var(--gold); font-weight: 700; font-size: 0.95rem; padding-block: var(--s1); }
+.hero-link:hover { text-decoration: underline; }
+@media (max-width: 860px) {
+    .hero-actions .btn { flex: 1 1 0; min-width: 0; padding-inline: 10px; font-size: 0.92rem; gap: 6px; }
+    .hero-link { justify-content: center; font-size: 0.9rem; }
+}
 
 /* ---------- صورة الواجهة: الصورة الصغيرة بالطول (ستاند مضيء) ---------- */
 .hero-media .hm-sub.hm-sub-tall { width: 38%; aspect-ratio: 3 / 4; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 40px rgba(212, 175, 55, 0.18); }
