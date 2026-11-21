@@ -15,6 +15,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js" defer></script>
     <script src="/assets/js/config.js" defer></script>
+    <script src="/assets/js/orders.js" defer></script>
     <script src="/assets/js/store.js" defer></script>
 </head>
 <body class="surface-light">
@@ -113,7 +114,10 @@
                     productId: productId || null,
                     timestamp: Date.now(), orderState: 'active', source: 'web-v2-quote'
                 };
-                FK.db().ref('orders').push(data).then(() => {
+                FK.submitOrder({
+                    data,
+                    tracking: { type: 'quote', items: [{ name: data.productName, qty: data.quantity }], total: 0, estimate: true, shippingFee: null, governorate: data.governorate }
+                }).then(() => {
                     FK.track('generate_lead', { lead_type: 'quote' });
                     $('quoteCard').innerHTML = `
                         <div class="success-box">
@@ -123,6 +127,7 @@
                             <div class="ref">${ref}</div>
                             <p class="muted">هنراجع التفاصيل ونكلمك على ${FK.esc(data.customerPhone)} بعرض السعر.</p>
                             <div style="display:grid; gap:12px; max-width:380px; margin:8px auto 0">
+                                <a class="btn btn-gold btn-block" href="/track?ref=${encodeURIComponent(ref)}"><i class="fa-solid fa-location-crosshairs"></i> تابع طلبك</a>
                                 ${hasLogo ? `<a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="${FK.waLink(`السلام عليكم، ده اللوجو/الصورة الخاصة بطلب عرض السعر رقم ${ref}`)}"><i class="fa-brands fa-whatsapp"></i> ابعت اللوجو على واتساب</a>` : ''}
                                 <a class="btn btn-outline btn-block" href="/products">تصفح المنتجات</a>
                             </div>

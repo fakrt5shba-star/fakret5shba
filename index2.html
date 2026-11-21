@@ -102,6 +102,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js" defer></script>
     <script src="/assets/js/config.js" defer></script>
+    <script src="/assets/js/orders.js" defer></script>
     <script src="/assets/js/store.js" defer></script>
 </head>
 <body class="surface-dark">
@@ -323,8 +324,10 @@
                     isLight: isLight, paid: '', status: { pen: false, cam: false, truck: false },
                     rowColor: '#ffffff', pinned: false, adminComment: '', orderState: 'active', source: 'web-v2-studio'
                 };
-                FK.db().ref('orders/' + orderId).set(orderData).then(() => {
-                    try { localStorage.setItem('fk_last_order', String(orderId)); localStorage.setItem('fk_last_notif_time', Date.now()); } catch (err) { }
+                FK.submitOrder({
+                    key: String(orderId), data: orderData,
+                    tracking: { type: 'studio', items: [{ name: `لوحة 3D مفتوح/مغلق${isLight ? ' (مضيئة)' : ''}`, qty: parseInt(v('orderQuantity')) || 1 }], total: 0, estimate: true, shippingFee: null, governorate: v('customerGov') }
+                }).then(() => {
                     FK.track('purchase_request', { item_id: 'open-closed-3d' });
                     $('orderBox').innerHTML = `
                         <div class="success-box">
@@ -333,6 +336,7 @@
                             <p class="muted">رقم طلبك</p>
                             <div class="ref">${ref}</div>
                             <p class="muted small">هنكلمك قريب لتأكيد التصميم والسعر ومصاريف الشحن.</p>
+                            <a class="btn btn-gold btn-block" href="/track?ref=${encodeURIComponent(ref)}"><i class="fa-solid fa-location-crosshairs"></i> تابع طلبك</a>
                             <a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="${FK.waLink('السلام عليكم، عملت طلب لوحة Open/Closed من الموقع ورقمه ' + ref)}"><i class="fa-brands fa-whatsapp"></i> ابعت رقم الطلب على واتساب (اختياري)</a>
                             <button class="btn btn-ghost btn-sm" type="button" onclick="location.reload()">تصميم جديد</button>
                         </div>`;

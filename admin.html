@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إدارة فكرة خشبة | لوحة تحكم المشرف</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -11,6 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/orders.js"></script>
     <meta name="robots" content="noindex, nofollow">
 
     <script>
@@ -208,6 +210,59 @@
         .promo-card { background: #111; border: 1px solid #333; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
         .promo-details h4 { color: var(--gold); font-size: 18px; margin: 0 0 5px 0; letter-spacing: 2px;}
         .promo-details p { color: #888; font-size: 13px; margin: 0;}
+
+        /* --- متابعة الطلب: الحالة، الفلوس، العربون، رسائل واتساب --- */
+        .alerts-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; background: rgba(212,175,55,0.08); border: 1px solid var(--border); border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; font-size: 13px; color: #ccc; }
+        .alerts-bar button { background: var(--gold); color: #000; border: none; border-radius: 6px; padding: 8px 14px; font-weight: bold; cursor: pointer; }
+        .alerts-bar.is-on { background: rgba(46,204,113,0.08); border-color: rgba(46,204,113,0.4); }
+        .status-steps { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 15px; }
+        .status-step { background: #050505; border: 1px solid #2a2a2a; color: #888; border-radius: 20px; padding: 7px 12px; font-size: 12px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: .2s; }
+        .status-step:hover { border-color: var(--gold); color: var(--gold); }
+        .status-step.is-done { color: #b8962e; border-color: rgba(212,175,55,0.35); }
+        .status-step.is-current { background: var(--gold); color: #000; border-color: var(--gold); }
+        .money-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .money-grid label { display: block; font-size: 11px; color: #888; margin-bottom: 4px; }
+        .money-grid input { margin: 0; padding: 8px; text-align: center; }
+        .money-grid .hint { font-size: 10px; color: #666; margin-top: 3px; }
+        .claim-box { background: rgba(46,204,113,0.08); border: 1px solid rgba(46,204,113,0.4); border-radius: 8px; padding: 10px 12px; margin-bottom: 15px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .claim-box button { background: var(--accent); color: #000; border: none; border-radius: 6px; padding: 7px 12px; font-weight: bold; cursor: pointer; }
+        .wa-row { display: flex; gap: 8px; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
+        .wa-row select { flex: 1; min-width: 200px; margin: 0; }
+        .wa-row button, .wa-row a { background: transparent; border: 1px solid var(--accent); color: var(--accent); border-radius: 6px; padding: 9px 14px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-flex; gap: 6px; align-items: center; font-size: 13px; }
+        .wa-row button:hover, .wa-row a:hover { background: var(--accent); color: #000; }
+        .cust-msg { display: flex; gap: 8px; margin-bottom: 15px; }
+        .cust-msg input { margin: 0; font-size: 13px; }
+        .cust-msg button { background: transparent; border: 1px solid var(--gold); color: var(--gold); border-radius: 6px; padding: 0 12px; cursor: pointer; white-space: nowrap; }
+        .track-link { font-size: 11px; color: #888; text-decoration: none; direction: ltr; }
+        .track-link:hover { color: var(--gold); }
+
+        /* --- لوحة الإدارة على الموبايل --- */
+        @media (max-width: 900px) {
+            body { flex-direction: column; height: auto; min-height: 100vh; overflow: auto; }
+            .sidebar { width: 100%; min-width: 0; flex-direction: row; overflow-x: auto; padding: 8px; border-left: none; border-bottom: 1px solid var(--border); position: sticky; top: 0; }
+            .sidebar h2 { display: none; }
+            .nav-btn { white-space: nowrap; padding: 10px 12px; font-size: 14px; border-right: none; border-bottom: 3px solid transparent; }
+            .nav-btn:hover, .nav-btn.active { border-right: none; border-bottom: 3px solid var(--gold); }
+            .btn-recover { margin-top: 0; border-top: none; }
+            .main-content { padding: 15px; overflow: visible; }
+            .grid-3, .grid-2 { grid-template-columns: 1fr; }
+            .builder-container { flex-direction: column; height: auto; }
+            .elements-list-panel { width: 100%; }
+            .orders-tabs, .orders-stats { flex-wrap: wrap; gap: 8px; }
+            .order-tab { min-width: 30%; padding: 10px; font-size: 13px; }
+            .stat-card { min-width: 45%; padding: 12px; }
+            .stat-card .val { font-size: 18px; }
+            .orders-filters { flex-direction: column; gap: 8px; }
+            .order-card { padding: 14px; }
+            .order-card-header { flex-direction: column; gap: 10px; }
+            .order-meta { text-align: right; }
+            .customer-info h3 { flex-wrap: wrap; font-size: 17px; }
+            .money-grid { grid-template-columns: 1fr 1fr; }
+            .order-amount { text-align: right; }
+            .order-actions { flex-wrap: wrap; justify-content: stretch; }
+            .order-actions .action-btn-order { flex: 1; justify-content: center; }
+            .default-table { display: block; overflow-x: auto; }
+        }
     </style>
 </head>
 <body>
@@ -338,7 +393,11 @@
 
         <!-- Panel 5: Orders Redesign -->
         <div id="orders-panel" class="panel">
-            
+            <div class="alerts-bar" id="alertsBar">
+                <span><i class="fa-solid fa-bell"></i> نبّهني بصوت وإشعار أول ما ييجي طلب جديد (والصفحة مفتوحة)</span>
+                <button type="button" onclick="enableOrderAlerts()">تفعيل التنبيهات</button>
+            </div>
+
             <div class="orders-tabs">
                 <div class="order-tab active-tab" data-tab="active" onclick="switchOrderTab('active')">
                     <span><i class="fa-solid fa-circle" style="color: rgba(255,255,255,0.5); font-size:10px; margin-left:5px;"></i> نشطة (<span id="countActive">0</span>)</span>
@@ -365,12 +424,10 @@
                     <input type="text" id="orderProductFilter" placeholder="اسم المنتج" oninput="renderOrders()">
                 </div>
                 <div style="flex:1;">
-                    <label style="font-size:11px; color:var(--gold); display:block; margin-bottom:3px;"><i class="fa-solid fa-chart-bar"></i> الحالة الداخلية</label>
+                    <label style="font-size:11px; color:var(--gold); display:block; margin-bottom:3px;"><i class="fa-solid fa-chart-bar"></i> حالة الطلب</label>
                     <select id="orderStatusFilter" onchange="renderOrders()">
                         <option value="all">الكل</option>
-                        <option value="pen">قيد التنفيذ</option>
-                        <option value="cam">جاهز</option>
-                        <option value="truck">تم الشحن</option>
+                        <option value="claim">بلّغ إنه حوّل العربون</option>
                     </select>
                 </div>
                 <div style="flex:1;">
@@ -458,7 +515,12 @@
         let ordersListenerStarted = false;
         function unlockAdmin() {
             document.getElementById('loginOverlay').style.display = 'none';
-            if(!ordersListenerStarted) { ordersListenerStarted = true; startOrdersListener(); }
+            if(!ordersListenerStarted) {
+                ordersListenerStarted = true; startOrdersListener();
+                // اللوحة بتفتح على الطلبات علطول
+                const ordersBtn = [...document.querySelectorAll('.nav-btn')].find(b => (b.getAttribute('onclick') || '').includes('orders-panel'));
+                if (ordersBtn) switchTab('orders-panel', ordersBtn);
+            }
         }
         firebase.auth().onAuthStateChanged(user => {
             if(user || hasTempSession()) { unlockAdmin(); return; }
@@ -862,16 +924,110 @@
             renderOrders();
         }
 
-        function updateOrderStatusFlags(orderId, type, isChecked) {
-            database.ref('orders/' + orderId + '/statusFlags/' + type).set(isChecked);
+        // ---------- متابعة الطلب (حالات، فلوس، عربون، واتساب، تتبع) — المنطق المشترك في /assets/js/orders.js ----------
+        const O = window.FK_ORDERS;
+        const ADMIN_TITLE = document.title;
+        let trackingData = {};
+        let knownOrderIds = null, alertsOn = false, audioCtx = null, unseenNew = 0;
+
+        function findOrder(orderId) { return allOrders.find(x => x.id === orderId); }
+        function orderPhone(o) { return o.customerPhone || o.phone || ''; }
+        function orderStatus(o) {
+            if (typeof o.status === 'string' && (O.statusIndex(o.status) >= 0 || o.status === 'canceled')) return o.status;
+            if (o.orderState === 'canceled') return 'canceled';
+            const f = o.statusFlags || (o.status && typeof o.status === 'object' ? o.status : {});
+            if (f.truck) return 'shipped';
+            if (f.camera || f.cam) return 'ready';
+            if (f.pen) return 'in_production';
+            return 'new';
+        }
+        function claimFor(o) { const t = O.isRef(o.orderRef) && trackingData[o.orderRef]; return t && t.depositClaim ? t.depositClaim : null; }
+        // بيحوّل { 'history/new': 1 } لـ { history: { new: 1 } } عشان set
+        function nestPatch(obj, patch) {
+            Object.keys(patch).forEach(k => {
+                const parts = k.split('/'); let cur = obj;
+                parts.slice(0, -1).forEach(p => { cur[p] = cur[p] && typeof cur[p] === 'object' ? cur[p] : {}; cur = cur[p]; });
+                cur[parts[parts.length - 1]] = patch[k];
+            });
+            return obj;
         }
 
+        // سجل التتبع العام (tracking/<رقم الطلب>): بيتعمل للطلبات القديمة أول مرة، وبيتحدث مع كل تغيير
+        async function syncTracking(o, patch) {
+            if (!O.isRef(o.orderRef)) return;
+            const ref = o.orderRef, existing = trackingData[ref];
+            patch = Object.assign({}, patch, { updatedAt: Date.now() });
+            try {
+                if (existing && existing.phoneHash) { await database.ref('tracking/' + ref).update(patch); return; }
+                const m = O.orderMoney(o), st = orderStatus(o);
+                const items = o.cartItems ? o.cartItems.map(i => ({ name: String(i.name || ''), qty: Number(i.qty) || 1 }))
+                    : [{ name: o.productName || (o.baseDetails !== undefined ? 'لوحة 3D مفتوح/مغلق' : 'طلب'), qty: parseInt(o.qty || o.quantity) || 1 }];
+                const base = {
+                    ref, type: o.orderType === 'quote' ? 'quote' : (o.baseDetails !== undefined ? 'studio' : 'cart'),
+                    status: st, createdAt: o.timestamp || parseInt(o.id) || Date.now(),
+                    phoneHash: await O.phoneHash(orderPhone(o), ref),
+                    items, total: m.items || null, estimate: !m.items, shippingFee: m.shipping, governorate: o.governorate || '',
+                    depositAmount: m.deposit || null, paid: m.paid || 0, message: o.customerMessage || null,
+                    history: Object.assign({}, o.statusHistory || { [st]: o.timestamp || Date.now() })
+                };
+                await database.ref('tracking/' + ref).set(nestPatch(base, patch));
+            } catch (e) { console.warn('tracking sync failed', e); }
+        }
+
+        function setOrderStatus(orderId, status) {
+            const o = findOrder(orderId); if (!o) return;
+            const now = Date.now(), i = O.statusIndex(status);
+            const updates = { status, ['statusHistory/' + status]: now,
+                statusFlags: { pen: i >= O.statusIndex('in_production'), camera: i >= O.statusIndex('ready'), truck: i >= O.statusIndex('shipped') } };
+            updates.orderState = status === 'delivered' ? 'completed' : status === 'canceled' ? 'canceled' : 'active';
+            database.ref('orders/' + orderId).update(updates);
+            syncTracking(o, { status, ['history/' + status]: now });
+        }
+        // أزرار التبويبات القديمة (إلغاء / خلصان / استرجاع) بقت بتغيّر الحالة كمان
         function updateOrderState(orderId, newState) {
-            database.ref('orders/' + orderId + '/orderState').set(newState);
+            const o = findOrder(orderId); if (!o) return;
+            if (newState === 'canceled') return setOrderStatus(orderId, 'canceled');
+            if (newState === 'completed') return setOrderStatus(orderId, 'delivered');
+            const h = o.statusHistory || {};
+            const prev = Object.keys(h).filter(s => O.statusIndex(s) >= 0 && s !== 'delivered').sort((a, b) => h[b] - h[a])[0] || 'new';
+            setOrderStatus(orderId, prev);
         }
 
-        function updatePaid(orderId, paidVal) {
-            database.ref('orders/' + orderId).update({ paid: parseFloat(paidVal) || 0 });
+        function updateOrderMoney(orderId, field, value) {
+            const o = findOrder(orderId); if (!o) return;
+            const key = { price: 'price', shipping: 'shippingFee', deposit: 'depositAmount', paid: 'paid' }[field];
+            const num = String(value).trim() === '' ? null : (parseFloat(value) || 0);
+            database.ref('orders/' + orderId + '/' + key).set(num);
+            const next = Object.assign({}, o, { [key]: num });
+            const m = O.orderMoney(next);
+            syncTracking(next, { total: m.items || null, estimate: !m.items, shippingFee: m.shipping, depositAmount: m.deposit || null, paid: m.paid || 0 });
+        }
+
+        function confirmDeposit(orderId) {
+            const o = findOrder(orderId); if (!o) return;
+            const m = O.orderMoney(o);
+            const amount = prompt('المبلغ اللي وصل فعلًا (ج.م):', String(m.depositDue || m.deposit || ''));
+            if (amount === null) return;
+            const paid = (m.paid || 0) + (parseFloat(amount) || 0);
+            database.ref('orders/' + orderId + '/paid').set(paid);
+            const next = Object.assign({}, o, { paid });
+            syncTracking(next, { paid, depositClaim: null });
+            if (O.statusIndex(orderStatus(o)) < O.statusIndex('deposit_paid')) setOrderStatus(orderId, 'deposit_paid');
+        }
+
+        function sendTemplate(orderId) {
+            const o = findOrder(orderId); if (!o) return;
+            const tpl = O.TEMPLATES.find(t => t.id === document.getElementById('tpl-' + orderId).value); if (!tpl) return;
+            window.open(O.waLinkTo(orderPhone(o), tpl.build(o)), '_blank', 'noopener');
+            syncTracking(o, {}); // عشان لينك التتبع اللي في الرسالة يشتغل حتى للطلبات القديمة
+            if (tpl.status && O.statusIndex(tpl.status) > O.statusIndex(orderStatus(o)) && confirm(`تحب تغيّر حالة الطلب لـ "${O.statusById(tpl.status).label}"؟`)) setOrderStatus(orderId, tpl.status);
+        }
+
+        function saveCustomerMessage(orderId) {
+            const o = findOrder(orderId); if (!o) return;
+            const msg = document.getElementById('cmsg-' + orderId).value.trim().slice(0, 300);
+            database.ref('orders/' + orderId + '/customerMessage').set(msg || null);
+            syncTracking(o, { message: msg || null }).then(() => alert(O.isRef(o.orderRef) ? 'اتحفظت، والعميل هيشوفها في صفحة تتبع الطلب.' : 'اتحفظت.'));
         }
 
         function updateWorkerNote(orderId) {
@@ -881,7 +1037,45 @@
             });
         }
 
+        // ---------- تنبيهات الطلبات الجديدة ----------
+        function enableOrderAlerts() {
+            alertsOn = true;
+            try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume(); } catch (e) { }
+            if ('Notification' in window && Notification.permission === 'default') { try { Notification.requestPermission(); } catch (e) { } }
+            const bar = document.getElementById('alertsBar'); bar.classList.add('is-on');
+            bar.innerHTML = '<span><i class="fa-solid fa-bell"></i> التنبيهات شغالة. سيب الصفحة دي مفتوحة وهتسمع صوت مع كل طلب جديد.</span>';
+            beep();
+        }
+        function beep() {
+            if (!audioCtx) return;
+            try {
+                [0, 0.28].forEach(t => {
+                    const osc = audioCtx.createOscillator(), g = audioCtx.createGain();
+                    osc.frequency.value = 880; osc.connect(g); g.connect(audioCtx.destination);
+                    g.gain.setValueAtTime(0.25, audioCtx.currentTime + t); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + t + 0.22);
+                    osc.start(audioCtx.currentTime + t); osc.stop(audioCtx.currentTime + t + 0.22);
+                });
+            } catch (e) { }
+        }
+        function notifyNewOrders(list) {
+            unseenNew += list.length;
+            document.title = `(${unseenNew}) طلب جديد | ${ADMIN_TITLE}`;
+            if (!alertsOn) return;
+            beep();
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const o = list[0];
+                try { new Notification('طلب جديد — فكرة خشبة', { body: [o.orderRef, o.customerName || o.name, o.governorate].filter(Boolean).join(' · '), tag: 'fk-order-' + o.id }); } catch (e) { }
+            }
+        }
+        document.addEventListener('visibilitychange', () => { if (!document.hidden && unseenNew) { unseenNew = 0; document.title = ADMIN_TITLE; } });
+
         function startOrdersListener() {
+            const sel = document.getElementById('orderStatusFilter');
+            if (sel && !sel.dataset.filled) {
+                sel.insertAdjacentHTML('beforeend', O.STATUSES.concat([O.CANCELED]).map(s => `<option value="${s.id}">${s.label}</option>`).join(''));
+                sel.dataset.filled = '1';
+            }
+            database.ref('tracking').on('value', snap => { trackingData = snap.val() || {}; renderOrders(); }, () => { });
             database.ref('orders').on('value', snapshot => {
                 allOrders = [];
                 snapshot.forEach(child => {
@@ -889,6 +1083,9 @@
                     order.orderState = order.orderState || 'active'; // Default state
                     allOrders.push(order);
                 });
+                const ids = new Set(allOrders.map(o => o.id));
+                if (knownOrderIds) { const fresh = allOrders.filter(o => !knownOrderIds.has(o.id)); if (fresh.length) notifyNewOrders(fresh); }
+                knownOrderIds = ids;
                 renderOrders();
             }, error => {
                 document.getElementById('ordersGridContainer').innerHTML = `<p style="color:#e74c3c; text-align:center;">خطأ في قراءة الطلبات (تأكد إن حسابك مضاف في admins).</p>`;
@@ -897,11 +1094,11 @@
 
         function renderOrders() {
             let html = '';
-            
-            let searchTerm = document.getElementById('orderSearch').value.toLowerCase(); 
+
+            let searchTerm = document.getElementById('orderSearch').value.toLowerCase();
             let areaTerm = document.getElementById('orderAreaFilter').value.toLowerCase();
             let productTerm = document.getElementById('orderProductFilter').value.toLowerCase();
-            let statusTerm = document.getElementById('orderStatusFilter').value; 
+            let statusTerm = document.getElementById('orderStatusFilter').value;
             let sortTerm = document.getElementById('orderSortFilter').value;
 
             // Tab Filtering
@@ -914,29 +1111,26 @@
 
             // Search & Filters
             filteredOrders = filteredOrders.filter(order => {
-                let name = (order.customerName || order.name || '').toLowerCase(); 
-                let phone = (order.customerPhone || order.phone || '').toLowerCase(); 
-                let address = (order.address || '').toLowerCase(); 
-                let note = (order.note || order.notes || '').toLowerCase(); 
+                let name = (order.customerName || order.name || '').toLowerCase();
+                let phone = (order.customerPhone || order.phone || '').toLowerCase();
+                let address = (order.address || '').toLowerCase();
                 let idMatch = (order.id || '').toLowerCase().includes(searchTerm) || (order.orderRef || '').toLowerCase().includes(searchTerm);
-                let flags = order.statusFlags || {};
-                
+
                 let searchMatch = name.includes(searchTerm) || phone.includes(searchTerm) || idMatch;
                 let areaMatch = address.includes(areaTerm);
-                
+
                 let is3DOrder = order.baseDetails !== undefined || order.doorDetails !== undefined;
                 let prodMatch = false;
                 if (!is3DOrder) {
                     let prodNames = order.productName ? order.productName.toLowerCase() : '';
-                    if(order.cartItems) { prodNames += order.cartItems.map(i => i.name.toLowerCase()).join(' '); }
+                    if(order.cartItems) { prodNames += order.cartItems.map(i => String(i.name || '').toLowerCase()).join(' '); }
                     prodMatch = prodNames.includes(productTerm);
                 } else {
                     let bText = (order.baseDetails || '').toLowerCase(); let dText = (order.doorDetails || '').toLowerCase();
                     prodMatch = bText.includes(productTerm) || dText.includes(productTerm);
                 }
 
-                let statusMatch = true;
-                if (statusTerm !== 'all') { statusMatch = flags[statusTerm] === true; }
+                let statusMatch = statusTerm === 'all' || (statusTerm === 'claim' ? !!claimFor(order) : orderStatus(order) === statusTerm);
 
                 return searchMatch && areaMatch && prodMatch && statusMatch;
             });
@@ -949,37 +1143,28 @@
             }
 
             // Calculate Stats for current view
-            let sCount = filteredOrders.length;
             let sTotal = 0; let sPaid = 0; let sRemain = 0;
-            filteredOrders.forEach(o => { 
-                let t = parseFloat(o.price || o.totalPrice || 0);
-                let p = parseFloat(o.paid || 0);
-                sTotal += t; sPaid += p; sRemain += (t - p);
-            });
-            
-            document.getElementById('statCount').innerText = sCount;
+            filteredOrders.forEach(o => { const m = O.orderMoney(o); sTotal += m.total; sPaid += m.paid; sRemain += m.remaining; });
+            document.getElementById('statCount').innerText = filteredOrders.length;
             document.getElementById('statTotal').innerText = sTotal + ' ج.م';
             document.getElementById('statPaid').innerText = sPaid + ' ج.م';
             document.getElementById('statRemain').innerText = sRemain + ' ج.م';
 
-            if(filteredOrders.length === 0) { 
-                document.getElementById('ordersGridContainer').innerHTML = '<div style="text-align:center; padding:50px; color:#666;">لا توجد طلبات مطابقة.</div>'; 
-                return; 
+            if(filteredOrders.length === 0) {
+                document.getElementById('ordersGridContainer').innerHTML = '<div style="text-align:center; padding:50px; color:#666;">لا توجد طلبات مطابقة.</div>';
+                return;
             }
 
             filteredOrders.forEach(order => {
-                let orderId = order.id; 
-                let dateObj = new Date(order.timestamp || parseInt(order.id)); 
-                let timeStr = dateObj.toLocaleTimeString('ar-EG', { hour: 'numeric', minute: 'numeric', hour12: true }); 
-                let dateStr = dateObj.toLocaleDateString('en-GB'); // YYYY/MM/DD format approx
+                let orderId = order.id;
+                let dateObj = new Date(order.timestamp || parseInt(order.id));
+                let timeStr = dateObj.toLocaleTimeString('ar-EG', { hour: 'numeric', minute: 'numeric', hour12: true });
+                let dateStr = dateObj.toLocaleDateString('en-GB');
 
                 // كل بيانات العميل بتتعرض بعد تنظيفها عشان محدش يحقن كود في لوحة الإدارة
                 let name = escAdmin(order.customerName || order.name || 'غير معروف');
                 let phone = escAdmin(order.customerPhone || order.phone || '---');
-
-                // Format phone for whatsapp (remove leading zero, add 2)
-                let waPhone = String(order.customerPhone || order.phone || '').replace(/\D/g, '').replace(/^0+/, '');
-                if (!waPhone.startsWith('2')) waPhone = '20' + waPhone;
+                let waPhone = O.waPhone(orderPhone(order));
 
                 let address = escAdmin(order.address || '---');
                 let noteText = order.note || order.notes || '';
@@ -991,18 +1176,17 @@
                     : (order.baseDetails !== undefined || order.doorDetails !== undefined) ? '<span class="order-type-badge studio">لوحة 3D</span>'
                     : '<span class="order-type-badge cart">سلة</span>';
 
-                let total = parseFloat(order.price || order.totalPrice || 0);
-                let promoVal = order.promoDiscount ? `<span style="font-size:11px; color:var(--accent);"> (تم خصم ${order.promoDiscount})</span>` : '';
-                
-                let paid = parseFloat(order.paid || 0); 
-                let remaining = total - paid; 
-                let flags = order.statusFlags || {};
+                const m = O.orderMoney(order);
+                const st = orderStatus(order), stIdx = O.statusIndex(st);
+                const claim = claimFor(order);
+                const suggest = O.suggestDeposit(m.total);
+                let promoVal = order.promoDiscount ? `<span style="font-size:11px; color:var(--accent);"> (تم خصم ${escAdmin(order.promoDiscount)})</span>` : '';
                 let workerNote = order.workerNote || '';
 
                 // Build Products HTML
                 let productsHtml = `<div class="order-products">`;
                 let is3DOrder = order.baseDetails !== undefined || order.doorDetails !== undefined;
-                
+
                 if (is3DOrder) {
                     let lightBadge = order.isLight ? '<span style="background:#f1c40f; color:#000; padding:2px 5px; border-radius:3px; font-size:11px;">مضيئة</span>' : '';
                     productsHtml += `
@@ -1013,7 +1197,7 @@
                                     <div class="prod-note">قاعدة: ${escAdmin(order.baseDetails || '')} | باب: ${escAdmin(order.doorDetails || '')}${order.qty && order.qty > 1 ? ` | العدد: ${escAdmin(order.qty)}` : ''}</div>
                                 </div>
                             </div>
-                            <div class="prod-price">${total} ج.م</div>
+                            <div class="prod-price">${m.items ? m.items + ' ج.م' : 'السعر لسه'}</div>
                         </div>`;
                 } else {
                     if (order.cartItems && Array.isArray(order.cartItems)) {
@@ -1044,26 +1228,24 @@
                 if(currentOrderTab === 'active') {
                     actionBtns = `
                         <button class="action-btn-order btn-cancel-order" onclick="updateOrderState('${orderId}', 'canceled')"><i class="fa-solid fa-xmark"></i> إلغاء الطلب</button>
-                        <button class="action-btn-order btn-complete" onclick="updateOrderState('${orderId}', 'completed')"><i class="fa-solid fa-folder-closed"></i> نقل لـ "خلصان"</button>
+                        <button class="action-btn-order btn-complete" onclick="updateOrderState('${orderId}', 'completed')"><i class="fa-solid fa-folder-closed"></i> اتسلم — نقل لـ "خلصان"</button>
                     `;
-                } else if(currentOrderTab === 'completed') {
-                    actionBtns = `
-                        <button class="action-btn-order btn-restore-order" onclick="updateOrderState('${orderId}', 'active')"><i class="fa-solid fa-rotate-left"></i> استرجاع لنشطة</button>
-                        <button class="action-btn-order btn-delete-order" onclick="deleteOrder('${orderId}')"><i class="fa-solid fa-trash"></i> حذف نهائي</button>
-                    `;
-                } else if(currentOrderTab === 'canceled') {
+                } else {
                     actionBtns = `
                         <button class="action-btn-order btn-restore-order" onclick="updateOrderState('${orderId}', 'active')"><i class="fa-solid fa-rotate-left"></i> استرجاع لنشطة</button>
                         <button class="action-btn-order btn-delete-order" onclick="deleteOrder('${orderId}')"><i class="fa-solid fa-trash"></i> حذف نهائي</button>
                     `;
                 }
 
+                const stepsHtml = st === 'canceled' ? `<div class="status-steps"><span class="status-step is-current"><i class="fa-solid ${O.CANCELED.icon}"></i> ${O.CANCELED.label}</span></div>`
+                    : `<div class="status-steps">${O.STATUSES.map((s, i) => `<button type="button" class="status-step ${i < stIdx ? 'is-done' : i === stIdx ? 'is-current' : ''}" onclick="setOrderStatus('${orderId}', '${s.id}')"><i class="fa-solid ${s.icon}"></i> ${s.label}</button>`).join('')}</div>`;
+
                 html += `
                 <div class="order-card">
                     <div class="order-card-header">
                         <div class="customer-info">
-                            <h3>${name} 
-                                <a href="https://wa.me/${waPhone}" target="_blank" class="whatsapp-btn"><i class="fa-brands fa-whatsapp"></i> واتساب</a>
+                            <h3>${name}
+                                <a href="https://wa.me/${waPhone}" target="_blank" rel="noopener" class="whatsapp-btn"><i class="fa-brands fa-whatsapp"></i> واتساب</a>
                                 <span class="phone-pill"><i class="fa-solid fa-phone"></i> ${phone}</span>
                             </h3>
                             <div class="customer-extra">
@@ -1078,33 +1260,31 @@
                         </div>
                     </div>
 
+                    ${stepsHtml}
+                    ${claim ? `<div class="claim-box"><span><i class="fa-solid fa-money-bill-transfer"></i> العميل بلّغ إنه حوّل العربون: <strong>${escAdmin(claim.note)}</strong>${claim.at ? ` <span style="color:#888">(${new Date(claim.at).toLocaleString('ar-EG')})</span>` : ''}</span><button type="button" onclick="confirmDeposit('${orderId}')">تأكيد استلام العربون</button></div>` : ''}
+
                     <div style="margin-bottom:15px; font-size:13px; color:#888;">${isQuote ? 'تفاصيل الطلب' : `المنتجات (${order.cartItems ? order.cartItems.length : 1})`}</div>
                     ${productsHtml}
 
-                    <div class="order-amount">
-                        ${isQuote && !total ? `<div class="total" style="color:#f39c12;">لم يتم تحديد السعر بعد</div>` : `
-                        <div class="total">${total} ج.م ${promoVal}</div>
-                        <div class="remaining">متبقي ${remaining} ج.م من ${total} ج.م</div>`}
+                    <div class="money-grid">
+                        <div><label>السعر النهائي (المنتجات)</label><input type="number" min="0" value="${m.items || ''}" placeholder="${isQuote || !m.items ? 'حدّد السعر' : ''}" onchange="updateOrderMoney('${orderId}', 'price', this.value)"></div>
+                        <div><label>الشحن</label><input type="number" min="0" value="${m.shipping == null ? '' : m.shipping}" placeholder="—" onchange="updateOrderMoney('${orderId}', 'shipping', this.value)"></div>
+                        <div><label>العربون المطلوب</label><input type="number" min="0" value="${m.deposit || ''}" placeholder="${suggest ? 'مقترح ' + suggest : '—'}" onchange="updateOrderMoney('${orderId}', 'deposit', this.value)"></div>
+                        <div><label>المدفوع</label><input type="number" min="0" value="${m.paid || ''}" placeholder="0" onchange="updateOrderMoney('${orderId}', 'paid', this.value)"></div>
+                    </div>
+                    <div class="order-amount" style="margin-bottom:15px;">
+                        ${!m.total ? `<div class="total" style="color:#f39c12;">لم يتم تحديد السعر بعد</div>` : `
+                        <div class="total">${m.total} ج.م ${promoVal}</div>
+                        <div class="remaining">متبقي ${m.remaining} ج.م${m.depositDue ? ` — العربون الناقص ${m.depositDue} ج.م` : ''}</div>`}
                     </div>
 
-                    <div class="order-controls" style="margin-top:20px;">
-                        <div class="payment-input">
-                            المدفوع: <input type="number" value="${paid}" onchange="updatePaid('${orderId}', this.value)">
-                        </div>
-                        <div class="status-radios">
-                            <div class="status-radio">
-                                <input type="checkbox" id="pen-${orderId}" ${flags.pen ? 'checked' : ''} onchange="updateOrderStatusFlags('${orderId}', 'pen', this.checked)">
-                                <label for="pen-${orderId}" class="s-pen"><i class="fa-solid fa-pen"></i> قيد التنفيذ</label>
-                            </div>
-                            <div class="status-radio">
-                                <input type="checkbox" id="cam-${orderId}" ${flags.camera ? 'checked' : ''} onchange="updateOrderStatusFlags('${orderId}', 'camera', this.checked)">
-                                <label for="cam-${orderId}" class="s-cam"><i class="fa-solid fa-camera"></i> جاهز</label>
-                            </div>
-                            <div class="status-radio">
-                                <input type="checkbox" id="trk-${orderId}" ${flags.truck ? 'checked' : ''} onchange="updateOrderStatusFlags('${orderId}', 'truck', this.checked)">
-                                <label for="trk-${orderId}" class="s-truck"><i class="fa-solid fa-truck"></i> تم الشحن</label>
-                            </div>
-                        </div>
+                    <div class="wa-row">
+                        <select id="tpl-${orderId}" aria-label="رسالة واتساب جاهزة">${O.TEMPLATES.map(t => `<option value="${t.id}" ${t.id === O.templateForStatus(st) ? 'selected' : ''}>${t.label}</option>`).join('')}</select>
+                        <button type="button" onclick="sendTemplate('${orderId}')"><i class="fa-brands fa-whatsapp"></i> ابعت للعميل</button>
+                    </div>
+                    <div class="cust-msg">
+                        <input type="text" id="cmsg-${orderId}" maxlength="300" placeholder="رسالة تظهر للعميل في صفحة تتبع الطلب (اختياري)، مثلًا: ميعاد التسليم الخميس" value="${escAdmin(order.customerMessage || '')}">
+                        <button type="button" onclick="saveCustomerMessage('${orderId}')">حفظ</button>
                     </div>
 
                     <div class="worker-notes">
@@ -1116,15 +1296,20 @@
                     <div class="order-actions">
                         ${actionBtns}
                     </div>
-                </div>`; 
+                </div>`;
             });
-            
+
             document.getElementById('ordersGridContainer').innerHTML = html;
         }
 
         function escAdmin(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
-        function deleteOrder(orderId) { if(confirm('هل أنت متأكد من حذف هذا الطلب نهائياً؟ لا يمكن التراجع عن هذا الإجراء.')) { database.ref('orders/' + orderId).remove(); } }
+        function deleteOrder(orderId) {
+            if(!confirm('هل أنت متأكد من حذف هذا الطلب نهائياً؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+            const o = findOrder(orderId), updates = { ['orders/' + orderId]: null };
+            if (o && O.isRef(o.orderRef)) updates['tracking/' + o.orderRef] = null;
+            database.ref().update(updates);
+        }
     </script>
 </body>
 </html>

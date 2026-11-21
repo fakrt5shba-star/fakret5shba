@@ -20,7 +20,7 @@
         return p;
     };
     FK.isValidPhone = raw => /^01[0125]\d{8}$/.test(FK.normalizePhone(raw));
-    FK.makeRef = () => 'FK-' + Date.now().toString(36).toUpperCase().slice(-6);
+    FK.makeRef = () => window.FK_ORDERS ? FK_ORDERS.makeRef() : 'FK-' + Date.now().toString(36).toUpperCase().slice(-6);
 
     FK.GOVERNORATES = ['القاهرة', 'الجيزة', 'الإسكندرية', 'القليوبية', 'الشرقية', 'الدقهلية', 'الغربية', 'المنوفية', 'البحيرة', 'كفر الشيخ', 'دمياط', 'بورسعيد', 'الإسماعيلية', 'السويس', 'الفيوم', 'بني سويف', 'المنيا', 'أسيوط', 'سوهاج', 'قنا', 'الأقصر', 'أسوان', 'البحر الأحمر', 'الوادي الجديد', 'مطروح', 'شمال سيناء', 'جنوب سيناء'];
     FK.govOptions = (selected) => '<option value="">اختار المحافظة</option>' + FK.GOVERNORATES.map(g => `<option ${g === selected ? 'selected' : ''}>${g}</option>`).join('');
@@ -130,6 +130,31 @@
         return database;
     };
     const toArr = v => (Array.isArray(v) ? v : Object.values(v || {})).filter(x => x != null);
+
+    // تسجيل أي طلب (سلة / عرض سعر / الاستوديو): الطلب الكامل في orders (للأدمن بس)
+    // وسجل تتبع عام في tracking/<رقم الطلب> بدون بيانات شخصية — الاتنين في كتابة واحدة
+    FK.submitOrder = async ({ key, data, tracking }) => {
+        const db = FK.db(), O = window.FK_ORDERS;
+        const orderKey = key || db.ref('orders').push().key;
+        const phone = data.customerPhone || data.phone || '';
+        data.status = 'new';
+        data.statusHistory = { new: data.timestamp || Date.now() };
+        const updates = { ['orders/' + orderKey]: data };
+        if (O && tracking && O.isRef(data.orderRef)) updates['tracking/' + data.orderRef] = await O.buildTracking({ ref: data.orderRef, phone, ...tracking });
+        await db.ref().update(updates);
+        try {
+            localStorage.setItem('fk_last_order', String(orderKey)); localStorage.setItem('fk_last_notif_time', Date.now());
+            const mine = JSON.parse(localStorage.getItem('fk_my_orders') || '[]').filter(o => o.ref !== data.orderRef);
+            mine.unshift({ ref: data.orderRef, phone, at: Date.now() });
+            localStorage.setItem('fk_my_orders', JSON.stringify(mine.slice(0, 10)));
+        } catch (e) { }
+        // تنبيه لصاحب المتجر (لو اتظبط) — مش بيأثر على الطلب لو فشل
+        try { fetch('/api/notify-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ref: data.orderRef }), keepalive: true }).catch(() => { }); } catch (e) { }
+        listenToMyOrder();
+        return { key: orderKey, ref: data.orderRef };
+    };
+    FK.myOrders = () => { try { return JSON.parse(localStorage.getItem('fk_my_orders') || '[]'); } catch (e) { return []; } };
+
     let storePromise = null;
     FK.loadStore = () => {
         if (storePromise) return storePromise;
@@ -206,6 +231,7 @@
             </div>
             <nav class="mobile-nav" id="mobileNav" aria-label="قائمة الموبايل">
                 ${NAV.map(n => `<a href="${n.href}" ${n.key === active ? 'aria-current="page"' : ''}>${n.label}</a>`).join('')}
+                <a href="/track" ${active === 'track' ? 'aria-current="page"' : ''}>تابع طلبك</a>
                 <a class="btn btn-gold btn-block" href="/quote">اطلب عرض سعر</a>
                 <a class="btn btn-wa btn-block" href="${FK.waLink('السلام عليكم، عندي استفسار عن منتجات فكرة خشبة')}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> كلمنا واتساب</a>
             </nav>`;
@@ -235,7 +261,7 @@
                     </div>
                     <div><h4>المتجر</h4><ul>${FK.CATEGORIES.slice(0, 4).map(c => `<li><a href="/products?cat=${c.id}">${c.name}</a></li>`).join('')}</ul></div>
                     <div><h4>خدماتنا</h4><ul><li><a href="/index2">صمّم منتجك</a></li><li><a href="/business">حلول الشركات</a></li><li><a href="/quote">اطلب عرض سعر</a></li></ul></div>
-                    <div><h4>تواصل معنا</h4><ul><li><a href="https://wa.me/${CFG.whatsappSales}" target="_blank" rel="noopener" dir="ltr">${CFG.phoneSalesDisplay}</a></li><li><a href="/privacy">سياسة الخصوصية</a></li></ul></div>
+                    <div><h4>تواصل معنا</h4><ul><li><a href="/track">تابع طلبك</a></li><li><a href="https://wa.me/${CFG.whatsappSales}" target="_blank" rel="noopener" dir="ltr">${CFG.phoneSalesDisplay}</a></li><li><a href="/privacy">سياسة الخصوصية</a></li></ul></div>
                 </div>
                 <div class="footer-bottom"><span>© ${new Date().getFullYear()} فكرة خشبة. جميع الحقوق محفوظة.</span><span>صُنع في مصر</span></div>
             </div>`;
@@ -298,7 +324,17 @@
         if (appliedPromo && subtotal > 0) discount = appliedPromo.type === 'percent' ? subtotal * (Number(appliedPromo.value) / 100) : Number(appliedPromo.value) || 0;
         discount = Math.min(subtotal, Math.round(discount * 100) / 100);
         const isEstimate = l => l.p && (l.p.price.kind === 'quote' || l.p.price.kind === 'range' || !!l.p.price.unit || (l.p.price.kind === 'options' && !l.label));
-        return { lines, subtotal, discount, total: Math.max(0, subtotal - discount), hasQuote: lines.some(isEstimate) };
+        const total = Math.max(0, subtotal - discount);
+        const O = window.FK_ORDERS;
+        const shipping = O && customer.gov ? O.shippingFor(customer.gov) : null;
+        const hasQuote = lines.some(isEstimate);
+        return { lines, subtotal, discount, total, shipping, grand: total + (shipping || 0), hasQuote, deposit: O && !hasQuote ? O.suggestDeposit(total + (shipping || 0)) : 0 };
+    }
+    // سطر الدفع: مفيش دفع دلوقتي، عربون بعد التأكيد، والباقي عند الاستلام
+    function paymentNotice(t) {
+        const O = window.FK_ORDERS, pt = O ? O.productionTime() : '';
+        const dep = t.deposit ? `عربون ${FK.money(t.deposit)}` : 'عربون بنتفق عليه';
+        return `<div class="notice"><i class="fa-solid fa-circle-info"></i><span>مش هتدفع حاجة دلوقتي. هنكلمك نأكد التفاصيل والسعر، وبعدها بتدفع ${dep} عشان نبدأ التنفيذ، والباقي عند الاستلام.${pt ? ` مدة التنفيذ: ${esc(pt)}.` : ''}</span></div>`;
     }
     function setStepIndicator() {
         const order = ['cart', 'details', 'review', 'done'];
@@ -311,9 +347,10 @@
         return `<div class="totals">
             <div><span>إجمالي المنتجات</span><strong>${FK.money(t.subtotal)}</strong></div>
             ${t.discount ? `<div class="discount"><span>خصم (${esc(appliedPromo.code)})</span><strong>- ${FK.money(t.discount)}</strong></div>` : ''}
-            <div class="grand"><span>الإجمالي</span><span>${FK.money(t.total)}</span></div>
+            ${t.shipping != null ? `<div><span>الشحن (${esc(customer.gov)})</span><strong>${t.shipping ? FK.money(t.shipping) : 'مجاني'}</strong></div>` : ''}
+            <div class="grand"><span>الإجمالي</span><span>${FK.money(t.grand)}</span></div>
             ${t.hasQuote ? '<p class="small muted">بعض المنتجات سعرها حسب المقاس أو بعرض سعر، هنأكد السعر النهائي معاك قبل التنفيذ.</p>' : ''}
-            <p class="small muted">مصاريف الشحن بتتحدد حسب المحافظة وبنأكدها معاك في مكالمة التأكيد.</p>
+            ${t.shipping == null ? '<p class="small muted">مصاريف الشحن بتتحدد حسب المحافظة وبنأكدها معاك في مكالمة التأكيد.</p>' : ''}
         </div>`;
     }
     function renderDrawer() {
@@ -383,7 +420,7 @@
                 </dl>
                 <div class="review-list">${t.lines.filter(l => l.p).map(l => `<div style="display:flex; justify-content:space-between; gap:8px"><span>${esc(l.displayName)} × ${l.item.qty}${l.item.note ? `<br><span class="small muted">${esc(l.item.note)}</span>` : ''}</span><strong>${l.p.price.kind === 'quote' ? 'عرض سعر' : FK.money(l.total)}</strong></div>`).join('')}</div>
                 ${totalsHTML(t)}
-                <div class="notice"><i class="fa-solid fa-circle-info"></i><span>الدفع بيتم بعد ما نكلمك ونأكد التفاصيل والسعر النهائي. مفيش دفع أونلاين على الموقع.</span></div>
+                ${paymentNotice(t)}
                 <div id="submitMsg" aria-live="assertive"></div>`;
             foot.innerHTML = `<button class="btn btn-gold btn-block" type="button" id="placeOrder">تأكيد وإرسال الطلب</button><button class="btn btn-ghost btn-sm" type="button" id="backDetails">تعديل البيانات</button>`;
             foot.querySelector('#backDetails').onclick = () => { step = 'details'; renderDrawer(); };
@@ -399,10 +436,10 @@
                     <h3 class="h3">طلبك اتسجل بنجاح</h3>
                     <p class="muted">رقم طلبك</p>
                     <div class="ref">${esc(ref)}</div>
-                    <p class="muted small">هنكلمك على رقمك قريب لتأكيد التفاصيل والسعر النهائي ومصاريف الشحن.</p>
+                    <p class="muted small">هنكلمك على رقمك قريب لتأكيد التفاصيل والسعر النهائي ومصاريف الشحن. احتفظ برقم الطلب عشان تتابعه.</p>
                 </div>
                 <div class="notice"><i class="fa-brands fa-whatsapp"></i><span>عايز تبعت صورة أو لوجو أو تستعجل الطلب؟ ابعتلنا على واتساب ومعاك رقم الطلب. (ده اختياري — طلبك متسجل خلاص.)</span></div>`;
-            foot.innerHTML = `<a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="${FK.waLink(`السلام عليكم، عملت طلب من الموقع ورقمه ${ref}`)}"><i class="fa-brands fa-whatsapp"></i> ابعت رقم الطلب على واتساب</a><button class="btn btn-ghost btn-sm" type="button" id="doneClose">تمام</button>`;
+            foot.innerHTML = `<a class="btn btn-gold btn-block" href="/track?ref=${encodeURIComponent(ref)}"><i class="fa-solid fa-location-crosshairs"></i> تابع طلبك</a><a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="${FK.waLink(`السلام عليكم، عملت طلب من الموقع ورقمه ${ref}`)}"><i class="fa-brands fa-whatsapp"></i> ابعت رقم الطلب على واتساب</a><button class="btn btn-ghost btn-sm" type="button" id="doneClose">تمام</button>`;
             foot.querySelector('#doneClose').onclick = FK.closeCart;
         }
     }
@@ -447,16 +484,18 @@
             governorate: customer.gov, address: `${customer.gov} — ${customer.address}`,
             cartItems, note: customer.note || 'لا توجد تفاصيل إضافية',
             totalPrice: t.total, subTotal: t.subtotal,
+            shippingFee: t.shipping,
             promoCode: appliedPromo ? appliedPromo.code : null, promoDiscount: t.discount,
             quantity: cart.reduce((s, i) => s + i.qty, 0),
             timestamp: Date.now(), orderState: 'active', source: 'web-v2'
         };
-        FK.db().ref('orders').push(orderData).then(refObj => {
-            try { localStorage.setItem('fk_last_order', refObj.key); localStorage.setItem('fk_last_notif_time', Date.now()); } catch (e) { }
+        FK.submitOrder({
+            data: orderData,
+            tracking: { type: 'cart', items: cartItems, total: t.total, estimate: t.hasQuote, shippingFee: t.shipping, governorate: customer.gov }
+        }).then(() => {
             FK.track('purchase_request', { value: t.total, items: cartItems.length });
             cart = []; saveCart(); appliedPromo = null;
             drawer.dataset.lastRef = ref; step = 'done'; renderDrawer();
-            listenToMyOrder();
         }).catch(() => {
             btn.classList.remove('is-loading');
             msg.innerHTML = `<div class="notice error"><i class="fa-solid fa-triangle-exclamation"></i><span>الطلب ماتسجلش بسبب مشكلة في الاتصال. جرّب تاني، أو ابعتلنا على واتساب.</span></div>`;

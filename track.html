@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تابع طلبك | فكرة خشبة</title>
+    <meta name="description" content="اعرف حالة طلبك من فكرة خشبة برقم الطلب ورقم موبايلك: التأكيد، العربون، التنفيذ، والشحن.">
+    <link rel="canonical" href="https://fakret5shba.com/track">
+    <meta name="robots" content="noindex, follow">
+    <meta name="theme-color" content="#0B0B0D">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230B0B0D'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='%23D4AF37' font-family='Arial' font-weight='bold'>ف</text></svg>">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/site.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js" defer></script>
+    <script src="/assets/js/config.js" defer></script>
+    <script src="/assets/js/orders.js" defer></script>
+    <script src="/assets/js/store.js" defer></script>
+    <style>
+        .trk-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s4); flex-wrap: wrap; margin-bottom: var(--s4); }
+        .trk-head .ref { font-size: 1.4rem; font-weight: 800; letter-spacing: .04em; direction: ltr; text-align: right; }
+        .trk-pill { display: inline-flex; align-items: center; gap: var(--s2); padding: 6px 14px; border-radius: 999px; background: var(--gold-soft); color: #7A5F0E; font-weight: 800; }
+        .trk-pill.is-canceled { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+        .trk-pill.is-done { background: rgba(34, 197, 94, 0.12); color: #15803D; }
+        .trk-steps { list-style: none; padding: 0; margin: var(--s5) 0; display: grid; gap: 0; }
+        .trk-steps li { position: relative; display: grid; grid-template-columns: 36px 1fr; gap: var(--s3); padding-bottom: var(--s4); }
+        .trk-steps li:not(:last-child)::after { content: ''; position: absolute; inset-inline-start: 17px; top: 36px; bottom: 0; width: 2px; background: var(--line-light); }
+        .trk-steps li.is-done:not(:last-child)::after { background: var(--gold); }
+        .trk-dot { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: #EEF0F3; color: var(--ink-2); font-size: .9rem; z-index: 1; }
+        .trk-steps li.is-done .trk-dot { background: var(--gold); color: #16161A; }
+        .trk-steps li.is-current .trk-dot { background: var(--ink); color: var(--gold); box-shadow: 0 0 0 4px var(--gold-soft); }
+        .trk-steps strong { display: block; line-height: 36px; }
+        .trk-steps li:not(.is-done):not(.is-current) strong { color: var(--ink-2); font-weight: 600; }
+        .trk-steps .when { font-size: .8rem; color: var(--ink-2); margin-top: -6px; }
+        .trk-items { list-style: none; padding: 0; margin: 0 0 var(--s4); display: grid; gap: var(--s2); }
+        .trk-items li { display: flex; justify-content: space-between; gap: var(--s3); padding: var(--s2) 0; border-bottom: 1px dashed var(--line-light); }
+        .pay-methods { display: grid; gap: var(--s2); margin: var(--s3) 0; }
+        .pay-method { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); padding: var(--s3) var(--s4); border: 1px solid var(--line-light); border-radius: var(--r-sm); background: var(--light); }
+        .pay-method code { font-family: inherit; font-weight: 800; direction: ltr; }
+        .my-orders { display: flex; gap: var(--s2); flex-wrap: wrap; margin-top: var(--s3); }
+        .trk-section { margin-top: var(--s5); padding-top: var(--s5); border-top: 1px solid var(--line-light); }
+    </style>
+</head>
+<body class="surface-light">
+    <a class="skip-link" href="#main">تخطي للمحتوى</a>
+    <header id="site-header"></header>
+
+    <main id="main" class="section-tight">
+        <div class="container" style="max-width:720px">
+            <div style="margin-bottom:24px">
+                <span class="eyebrow" style="color:#9A7B16">تابع طلبك</span>
+                <h1 class="h2">طلبك وصل لفين؟</h1>
+                <p class="lead" style="margin-top:8px">اكتب رقم الطلب اللي ظهرلك بعد ما طلبت (بيبدأ بـ FK) ورقم الموبايل اللي طلبت بيه.</p>
+            </div>
+
+            <div class="form-card" id="lookupCard">
+                <form id="lookupForm" class="form-grid" novalidate>
+                    <div class="field"><label for="tRef">رقم الطلب</label><input id="tRef" placeholder="FK-XXXXXX" dir="ltr" style="text-align:right; text-transform:uppercase" autocomplete="off" required><span class="field-error">اكتب رقم الطلب زي ما ظهرلك (FK- وبعدها 6 حروف وأرقام)</span></div>
+                    <div class="field"><label for="tPhone">رقم الموبايل</label><input id="tPhone" type="tel" inputmode="tel" placeholder="01xxxxxxxxx" dir="ltr" style="text-align:right" autocomplete="tel" required><span class="field-error">اكتب رقم موبايل مصري صحيح</span></div>
+                    <div class="span-2"><button class="btn btn-gold btn-block" type="submit" id="tSubmit"><i class="fa-solid fa-location-crosshairs"></i> اعرف حالة الطلب</button></div>
+                </form>
+                <div id="myOrders"></div>
+                <div id="lookupMsg" aria-live="polite" style="margin-top:16px"></div>
+            </div>
+
+            <div id="result" style="margin-top:24px" aria-live="polite"></div>
+        </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            FK.renderChrome('track');
+            const O = window.FK_ORDERS, CFG = window.FK_CONFIG, esc = FK.esc, $ = id => document.getElementById(id);
+            const dbUrl = CFG.firebase.databaseURL;
+            const fmtDate = ts => { const d = new Date(ts); return d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'long' }) + ' — ' + d.toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' }); };
+
+            // الطلبات اللي اتعملت من الجهاز ده
+            const mine = FK.myOrders();
+            if (mine.length) {
+                $('myOrders').innerHTML = `<p class="small muted" style="margin-top:16px">طلباتك من الجهاز ده:</p><div class="my-orders">${mine.map((o, i) => `<button class="chip" type="button" data-mine="${i}" dir="ltr">${esc(o.ref)}</button>`).join('')}</div>`;
+                $('myOrders').querySelectorAll('[data-mine]').forEach(b => b.onclick = () => { const o = mine[+b.dataset.mine]; $('tRef').value = o.ref; $('tPhone').value = o.phone; lookup(); });
+            }
+            const qRef = FK.qs('ref');
+            if (qRef) {
+                $('tRef').value = O.cleanRef(qRef);
+                const saved = mine.find(o => o.ref === $('tRef').value);
+                if (saved) { $('tPhone').value = saved.phone; lookup(); } else $('tPhone').focus();
+            }
+
+            $('lookupForm').addEventListener('submit', e => { e.preventDefault(); lookup(); });
+
+            async function lookup() {
+                const ref = O.cleanRef($('tRef').value), phone = $('tPhone').value;
+                $('tRef').value = ref;
+                const okRef = O.isRef(ref), okPhone = FK.isValidPhone(phone);
+                $('tRef').closest('.field').classList.toggle('has-error', !okRef);
+                $('tPhone').closest('.field').classList.toggle('has-error', !okPhone);
+                if (!okRef || !okPhone) return;
+                const btn = $('tSubmit'); btn.classList.add('is-loading'); $('lookupMsg').innerHTML = ''; $('result').innerHTML = '';
+                try {
+                    const res = await fetch(`${dbUrl}/tracking/${ref}.json`);
+                    if (!res.ok) throw new Error('http ' + res.status);
+                    const t = await res.json();
+                    const match = t && t.phoneHash === await O.phoneHash(phone, ref);
+                    if (!match) {
+                        $('lookupMsg').innerHTML = `<div class="notice error"><i class="fa-solid fa-circle-question"></i><span>مش لاقيين طلب بالرقم ده والموبايل ده. اتأكد منهم، أو <a style="text-decoration:underline" target="_blank" rel="noopener" href="${FK.waLink(`السلام عليكم، عايز أعرف حالة طلبي رقم ${ref}`)}">اسألنا على واتساب</a>.</span></div>`;
+                        return;
+                    }
+                    try {
+                        const list = FK.myOrders().filter(o => o.ref !== ref); list.unshift({ ref, phone: FK.normalizePhone(phone), at: Date.now() });
+                        localStorage.setItem('fk_my_orders', JSON.stringify(list.slice(0, 10)));
+                    } catch (e) { }
+                    if (history.replaceState) history.replaceState(null, '', '/track?ref=' + encodeURIComponent(ref));
+                    render(t, ref);
+                } catch (e) {
+                    $('lookupMsg').innerHTML = `<div class="notice error"><i class="fa-solid fa-triangle-exclamation"></i><span>حصلت مشكلة في الاتصال. جرّب تاني بعد شوية.</span></div>`;
+                } finally { btn.classList.remove('is-loading'); }
+            }
+
+            function render(t, ref) {
+                const st = O.statusById(t.status), canceled = t.status === 'canceled', idx = O.statusIndex(t.status);
+                const hist = t.history || {};
+                const shipping = t.shippingFee == null ? null : Number(t.shippingFee);
+                const items = Number(t.total) || 0, grand = items + (shipping || 0);
+                const deposit = Number(t.depositAmount) || 0, paid = Number(t.paid) || 0;
+                const methods = O.depositMethods();
+                const needsDeposit = !canceled && deposit > 0 && paid < deposit && idx < O.statusIndex('shipped');
+                const pillCls = canceled ? 'is-canceled' : (t.status === 'delivered' ? 'is-done' : '');
+
+                const steps = O.STATUSES.map((s, i) => {
+                    const cls = canceled ? (hist[s.id] ? 'is-done' : '') : (i < idx ? 'is-done' : i === idx ? 'is-current' : '');
+                    return `<li class="${cls}"><span class="trk-dot"><i class="fa-solid ${s.icon}"></i></span><div><strong>${esc(s.label)}</strong>${hist[s.id] ? `<div class="when">${esc(fmtDate(hist[s.id]))}</div>` : ''}</div></li>`;
+                }).join('');
+
+                let money = '';
+                if (t.total != null && !t.estimate || items) {
+                    money = `<div class="totals">
+                        <div><span>المنتجات</span><strong>${FK.money(items)}</strong></div>
+                        <div><span>الشحن</span><strong>${shipping == null ? 'بيتحدد في التأكيد' : shipping ? FK.money(shipping) : 'مجاني'}</strong></div>
+                        <div class="grand"><span>الإجمالي</span><span>${FK.money(grand)}</span></div>
+                        ${deposit ? `<div><span>العربون</span><strong>${FK.money(deposit)}</strong></div>` : ''}
+                        ${paid ? `<div class="discount"><span>المدفوع</span><strong>${FK.money(paid)}</strong></div>` : ''}
+                        ${paid ? `<div><span>الباقي عند الاستلام</span><strong>${FK.money(Math.max(0, grand - paid))}</strong></div>` : ''}
+                    </div>`;
+                } else {
+                    money = `<p class="muted">السعر بيتحدد بعد ما نراجع التفاصيل معاك، وهيظهر هنا أول ما نأكده.</p>`;
+                }
+
+                let depositBox = '';
+                if (needsDeposit) {
+                    const due = deposit - paid;
+                    if (t.depositClaim) {
+                        depositBox = `<div class="notice success"><i class="fa-solid fa-circle-check"></i><span>استلمنا بيانات التحويل بتاعتك، وهنأكد العربون ونحدّث حالة الطلب في أقرب وقت.</span></div>`;
+                    } else if (methods.length) {
+                        depositBox = `
+                            <p>عشان نبدأ التنفيذ حوّل العربون <strong>${FK.money(due)}</strong> على أي طريقة من دول:</p>
+                            <div class="pay-methods">${methods.map((m, i) => `<div class="pay-method"><span>${esc(m.label)}</span><code>${esc(m.value)}</code><button class="btn btn-outline btn-sm" type="button" data-copy="${i}">نسخ</button></div>`).join('')}</div>
+                            <form id="claimForm" class="form-grid" style="grid-template-columns:1fr" novalidate>
+                                <div class="field"><label for="claimNote">بعد ما تحوّل: اكتب رقم العملية أو الرقم اللي حوّلت منه</label><input id="claimNote" maxlength="200" placeholder="مثال: حوّلت من 010xxxxxxxx" required><span class="field-error">اكتب أي حاجة تساعدنا نلاقي التحويل</span></div>
+                                <button class="btn btn-gold btn-block" type="submit" id="claimSubmit">بلّغنا إنك حوّلت</button>
+                            </form>
+                            <p class="small muted" style="margin-top:8px">تقدر كمان تبعت صورة التحويل على واتساب.</p>`;
+                    } else {
+                        depositBox = `<p>عشان نبدأ التنفيذ محتاجين عربون <strong>${FK.money(due)}</strong>. كلمنا على واتساب وهنقولك تحوّل إزاي.</p>`;
+                    }
+                    depositBox = `<div class="trk-section"><h2 class="h3" style="margin-bottom:12px">العربون</h2>${depositBox}</div>`;
+                } else if (!canceled && t.status === 'new') {
+                    depositBox = `<div class="trk-section"><p class="small muted">مش هتدفع حاجة دلوقتي. بعد مكالمة التأكيد بتدفع عربون عشان نبدأ التنفيذ، والباقي عند الاستلام.${O.productionTime() ? ` مدة التنفيذ: ${esc(O.productionTime())}.` : ''}</p></div>`;
+                }
+
+                $('result').innerHTML = `
+                    <div class="form-card">
+                        <div class="trk-head">
+                            <div><span class="small muted">رقم الطلب</span><div class="ref">${esc(ref)}</div><span class="small muted">اتعمل يوم ${esc(fmtDate(t.createdAt))}</span></div>
+                            <span class="trk-pill ${pillCls}"><i class="fa-solid ${st.icon}"></i> ${esc(st.label)}</span>
+                        </div>
+                        <p>${esc(st.customer)}</p>
+                        ${t.message ? `<div class="notice" style="margin-top:12px"><i class="fa-solid fa-message"></i><span>${esc(t.message)}</span></div>` : ''}
+                        ${canceled ? '' : `<ol class="trk-steps">${steps}</ol>`}
+                        <div class="trk-section" style="${canceled ? '' : 'margin-top:0; padding-top:0; border-top:0'}">
+                            <h2 class="h3" style="margin-bottom:12px">تفاصيل الطلب</h2>
+                            <ul class="trk-items">${(t.items || []).map(i => `<li><span>${esc(i.name)}</span><strong>× ${esc(i.qty)}</strong></li>`).join('')}</ul>
+                            ${money}
+                        </div>
+                        ${depositBox}
+                        <div class="trk-section" style="display:grid; gap:12px">
+                            <a class="btn btn-wa btn-block" target="_blank" rel="noopener" href="${FK.waLink(`السلام عليكم، بخصوص طلبي رقم ${ref}`)}"><i class="fa-brands fa-whatsapp"></i> كلمنا عن الطلب ده</a>
+                        </div>
+                    </div>`;
+
+                $('result').querySelectorAll('[data-copy]').forEach(b => b.onclick = async () => {
+                    const m = methods[+b.dataset.copy];
+                    try { await navigator.clipboard.writeText(m.value); FK.toast('اتنسخ'); } catch (e) { prompt('انسخ:', m.value); }
+                });
+                const claim = $('claimForm');
+                if (claim) claim.addEventListener('submit', async e => {
+                    e.preventDefault();
+                    const note = $('claimNote').value.trim();
+                    $('claimNote').closest('.field').classList.toggle('has-error', note.length < 3);
+                    if (note.length < 3) return;
+                    const btn = $('claimSubmit'); btn.classList.add('is-loading');
+                    try {
+                        const res = await fetch(`${dbUrl}/tracking/${ref}/depositClaim.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ at: { '.sv': 'timestamp' }, note }) });
+                        if (!res.ok) throw new Error('http ' + res.status);
+                        t.depositClaim = { note }; render(t, ref);
+                        FK.toast('وصلنا، هنأكد ونحدّث الطلب');
+                    } catch (err) {
+                        btn.classList.remove('is-loading');
+                        FK.toast('حصلت مشكلة، جرّب تاني أو ابعت صورة التحويل واتساب', 'fa-triangle-exclamation');
+                    }
+                });
+                $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    </script>
+</body>
+</html>

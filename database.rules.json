@@ -16,6 +16,18 @@
           ".read": true
         }
       }
+    },
+    "tracking": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      "$ref": {
+        ".read": true,
+        ".write": "(auth != null && root.child('admins').child(auth.uid).val() === true) || (!data.exists() && $ref.matches(/^FK-[A-Z0-9]{6}$/) && newData.child('status').val() === 'new' && !newData.child('paid').exists() && !newData.child('depositAmount').exists() && !newData.child('depositClaim').exists() && !newData.child('message').exists())",
+        ".validate": "newData.hasChildren(['status', 'createdAt', 'phoneHash'])",
+        "depositClaim": {
+          ".write": "!data.exists() && newData.exists() && data.parent().child('phoneHash').exists()",
+          ".validate": "newData.hasChildren(['at', 'note']) && newData.child('note').isString() && newData.child('note').val().length <= 300"
+        }
+      }
     }
   }
 }
