@@ -8,7 +8,7 @@ const clean = s => String(s || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF
 module.exports = async (req, res) => {
     const id = String(req.query.id || '');
     const pageUrl = `${CFG.siteUrl}/product?id=${encodeURIComponent(id)}`;
-    let title = 'فكرة خشبة | لوحات نيون وأكريليك ولايت بوكس', desc = 'لوحات نيون وأكريليك ولايت بوكس وديكورات حسب الطلب.', image = `${CFG.siteUrl}/assets/img/hero-neon-coffee.jpeg`, priceTags = '';
+    let title = 'فكرة خشبة | لوحات نيون وأكريليك ولايت بوكس', desc = 'لوحات نيون وأكريليك ولايت بوكس وديكورات حسب الطلب.', image = `${CFG.siteUrl}/assets/img/og-home.jpg`, priceTags = '';
     try {
         const p = (await loadProducts()).find(x => String(x.id) === id);
         if (p) {

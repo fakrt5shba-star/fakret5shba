@@ -363,6 +363,11 @@ main { flex: 1; }
 .prose ul { padding-inline-start: var(--s5); }
 .prose a { color: var(--gold); text-decoration: underline; }
 
+/* ---------- صورة الواجهة: الصورة الصغيرة بالطول (ستاند مضيء) ---------- */
+.hero-media .hm-sub.hm-sub-tall { width: 38%; aspect-ratio: 3 / 4; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 40px rgba(212, 175, 55, 0.18); }
+.hero-media .hm-main { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 60px rgba(241, 204, 86, 0.15); }
+@media (max-width: 860px) { .hero-media .hm-sub.hm-sub-tall { width: 27%; } }
+
 /* ---------- «أحسن منتجاتنا»: علامة مميز + قسم مضيء ---------- */
 .badge-feat { position: absolute; top: var(--s3); inset-inline-end: var(--s3); z-index: 2; display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #F1CC56, #D4AF37); color: #16161A; font-size: 0.75rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; box-shadow: 0 0 14px rgba(241, 204, 86, 0.55); }
 .p-card.is-featured { border-color: rgba(212, 175, 55, 0.45); }
