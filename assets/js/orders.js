@@ -106,7 +106,7 @@
                 const m = O.orderMoney(o), pt = O.productionTime();
                 return `أهلًا ${firstName(o)}، معاك فكرة خشبة بخصوص طلبك رقم ${o.orderRef || ''}.\n${itemsText(o)}\n` +
                     (m.items ? `\nالإجمالي: ${money(m.items)}` + (m.shipping != null ? `\nالشحن: ${money(m.shipping)}\nالمطلوب كله: ${money(m.total)}` : '') : '') +
-                    (m.deposit ? `\n\nعشان نبدأ التنفيذ محتاجين عربون ${money(m.deposit)}، والباقي عند الاستلام.` + payLines(m.depositDue || m.deposit) : '') +
+                    (m.deposit ? `\n\nعشان نبدأ التنفيذ محتاجين عربون ${money(m.deposit)}، والباقي قبل الشحن.` + payLines(m.depositDue || m.deposit) : '') +
                     (pt ? `\n\nمدة التنفيذ: ${pt}.` : '') + linkLine(o) + `\n\nلو فيه أي تعديل قولنا.`;
             }
         },
@@ -128,14 +128,14 @@
             id: 'ready', label: 'الطلب جاهز', status: 'ready',
             build: o => {
                 const m = O.orderMoney(o);
-                return `طلبك رقم ${o.orderRef || ''} جاهز يا ${firstName(o)}! هنبعتلك صورته دلوقتي.` + (m.remaining ? `\nالمتبقي ${money(m.remaining)} بيتدفع عند الاستلام.` : '') + `\nلو العنوان اتغير ابعتهولنا.`;
+                return `طلبك رقم ${o.orderRef || ''} جاهز يا ${firstName(o)}! هنبعتلك صورته دلوقتي.` + (m.remaining ? `\nالمتبقي ${money(m.remaining)} بتحوّله قبل ما نشحن.` + payLines(m.remaining) : '') + `\nلو العنوان اتغير ابعتهولنا.`;
             }
         },
         {
             id: 'shipped', label: 'الطلب اتشحن', status: 'shipped',
             build: o => {
                 const m = O.orderMoney(o);
-                return `طلبك رقم ${o.orderRef || ''} خرج للشحن وهيوصلك قريب.` + (m.remaining ? `\nالمطلوب عند الاستلام: ${money(m.remaining)}.` : '') + linkLine(o);
+                return `طلبك رقم ${o.orderRef || ''} خرج للشحن وهيوصلك قريب.` + linkLine(o);
             }
         },
         {

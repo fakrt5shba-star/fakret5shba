@@ -376,11 +376,11 @@
         const hasQuote = lines.some(isEstimate);
         return { lines, subtotal, discount, total, shipping, grand: total + (shipping || 0), hasQuote, deposit: O && !hasQuote ? O.suggestDeposit(total + (shipping || 0)) : 0 };
     }
-    // سطر الدفع: مفيش دفع دلوقتي، عربون بعد التأكيد، والباقي عند الاستلام
+    // سطر الدفع: مفيش دفع دلوقتي، عربون بعد التأكيد، والباقي قبل الشحن
     function paymentNotice(t) {
         const O = window.FK_ORDERS, pt = O ? O.productionTime() : '';
         const dep = t.deposit ? `عربون ${FK.money(t.deposit)}` : 'عربون بنتفق عليه';
-        return `<div class="notice"><i class="fa-solid fa-circle-info"></i><span>مش هتدفع حاجة دلوقتي. هنكلمك نأكد التفاصيل والسعر، وبعدها بتدفع ${dep} عشان نبدأ التنفيذ، والباقي عند الاستلام.${pt ? ` مدة التنفيذ: ${esc(pt)}.` : ''}</span></div>`;
+        return `<div class="notice"><i class="fa-solid fa-circle-info"></i><span>مش هتدفع حاجة دلوقتي. هنكلمك نأكد التفاصيل والسعر، وبعدها بتدفع ${dep} عشان نبدأ التنفيذ، والباقي قبل الشحن.${pt ? ` مدة التنفيذ: ${esc(pt)}.` : ''}</span></div>`;
     }
     function setStepIndicator() {
         const order = ['cart', 'details', 'review', 'done'];

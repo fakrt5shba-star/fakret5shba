@@ -146,7 +146,7 @@
                         <div class="grand"><span>الإجمالي</span><span>${FK.money(grand)}</span></div>
                         ${deposit ? `<div><span>العربون</span><strong>${FK.money(deposit)}</strong></div>` : ''}
                         ${paid ? `<div class="discount"><span>المدفوع</span><strong>${FK.money(paid)}</strong></div>` : ''}
-                        ${paid ? `<div><span>الباقي عند الاستلام</span><strong>${FK.money(Math.max(0, grand - paid))}</strong></div>` : ''}
+                        ${paid ? `<div><span>الباقي قبل الشحن</span><strong>${FK.money(Math.max(0, grand - paid))}</strong></div>` : ''}
                     </div>`;
                 } else {
                     money = `<p class="muted">السعر بيتحدد بعد ما نراجع التفاصيل معاك، وهيظهر هنا أول ما نأكده.</p>`;
@@ -171,7 +171,7 @@
                     }
                     depositBox = `<div class="trk-section"><h2 class="h3" style="margin-bottom:12px">العربون</h2>${depositBox}</div>`;
                 } else if (!canceled && t.status === 'new') {
-                    depositBox = `<div class="trk-section"><p class="small muted">مش هتدفع حاجة دلوقتي. بعد مكالمة التأكيد بتدفع عربون عشان نبدأ التنفيذ، والباقي عند الاستلام.${O.productionTime() ? ` مدة التنفيذ: ${esc(O.productionTime())}.` : ''}</p></div>`;
+                    depositBox = `<div class="trk-section"><p class="small muted">مش هتدفع حاجة دلوقتي. بعد مكالمة التأكيد بتدفع عربون عشان نبدأ التنفيذ، والباقي قبل الشحن.${O.productionTime() ? ` مدة التنفيذ: ${esc(O.productionTime())}.` : ''}</p></div>`;
                 }
 
                 $('result').innerHTML = `
